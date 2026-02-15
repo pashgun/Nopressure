@@ -3,7 +3,7 @@ import SwiftUI
 /// Splash / Welcome screen — matches Figma "Splash" (node 2:889)
 /// Orange blob background with "no pressure" logo and subtitle
 struct WelcomeView: View {
-    @Binding var showOnboarding: Bool
+    var onContinue: () -> Void = {}
 
     var body: some View {
         ZStack {
@@ -41,7 +41,7 @@ struct WelcomeView: View {
                 // Get Started Button — white on orange bg
                 Button {
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-                        showOnboarding = false
+                        onContinue()
                     }
                 } label: {
                     Text("Get Started")

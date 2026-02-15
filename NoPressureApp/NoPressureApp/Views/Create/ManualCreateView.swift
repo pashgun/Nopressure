@@ -201,7 +201,7 @@ struct ManualCreateView: View {
     private func saveDeck() {
         let deck = Deck(
             name: deckName,
-            description: deckDescription.isEmpty ? nil : deckDescription,
+            description: deckDescription,
             colorHex: selectedColor,
             icon: selectedIcon
         )

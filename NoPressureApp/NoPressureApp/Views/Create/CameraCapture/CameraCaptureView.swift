@@ -229,7 +229,7 @@ struct CameraCaptureView: View {
     private func saveDeck(name: String, description: String?, color: String, icon: String) {
         let deck = Deck(
             name: name,
-            description: description,
+            description: description ?? "",
             colorHex: color,
             icon: icon
         )

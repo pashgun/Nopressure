@@ -1,5 +1,8 @@
 import Foundation
 import SwiftData
+import os
+
+private let logger = Logger(subsystem: "com.nopressure.app", category: "UserService")
 
 /// Service for managing User operations in SwiftData
 @MainActor
@@ -9,7 +12,12 @@ class UserService {
     /// - Returns: The first User found, or nil if no user exists
     static func getCurrentUser(from context: ModelContext) -> User? {
         let descriptor = FetchDescriptor<User>()
-        return try? context.fetch(descriptor).first
+        do {
+            return try context.fetch(descriptor).first
+        } catch {
+            logger.error("Failed to fetch user: \(error.localizedDescription)")
+            return nil
+        }
     }
 
     /// Create a new user and save to SwiftData
@@ -38,7 +46,11 @@ class UserService {
         )
 
         context.insert(user)
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            logger.error("Failed to save new user: \(error.localizedDescription)")
+        }
 
         return user
     }
@@ -48,7 +60,11 @@ class UserService {
     ///   - user: User to update
     ///   - context: ModelContext
     static func updateUser(_ user: User, in context: ModelContext) {
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            logger.error("Failed to update user: \(error.localizedDescription)")
+        }
     }
 
     /// Delete user
@@ -57,6 +73,10 @@ class UserService {
     ///   - context: ModelContext
     static func deleteUser(_ user: User, in context: ModelContext) {
         context.delete(user)
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            logger.error("Failed to delete user: \(error.localizedDescription)")
+        }
     }
 }

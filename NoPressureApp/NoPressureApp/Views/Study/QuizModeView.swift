@@ -18,6 +18,16 @@ struct QuizModeView: View {
     private let fsrsService = FSRSService()
 
     var body: some View {
+        if cards.isEmpty {
+            VStack(spacing: NP.Spacing.lg) {
+                Text("No cards available")
+                    .font(NP.Typography.title3)
+                    .foregroundColor(NP.Colors.textSecondary)
+                Button("Go Back") { onComplete() }
+                    .font(NP.Typography.bodySemibold)
+                    .foregroundColor(NP.Colors.primary)
+            }
+        } else {
         VStack(spacing: NP.Spacing.xxxl) {
             // Progress
             VStack(spacing: NP.Spacing.md) {
@@ -100,10 +110,12 @@ struct QuizModeView: View {
         } message: {
             Text(errorMessage)
         }
+        } // else (cards not empty)
     }
 
     private var currentCard: Flashcard {
-        cards[currentIndex]
+        guard currentIndex < cards.count else { return cards[cards.count - 1] }
+        return cards[currentIndex]
     }
 
     private func generateOptions() {

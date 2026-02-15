@@ -16,8 +16,12 @@ struct OnboardingCoordinator: View {
         ZStack {
             switch currentScreen {
             case 0:
-                WelcomeView(showOnboarding: .constant(true))
-                    .transition(.opacity)
+                WelcomeView {
+                    withAnimation {
+                        currentScreen = 1
+                    }
+                }
+                .transition(.opacity)
 
             case 1:
                 HowItWorksView(currentPage: $howItWorksPage) {

@@ -1,0 +1,43 @@
+name: NoPressureApp
+
+options:
+  bundleIdPrefix: com.nopressure
+  deploymentTarget:
+    iOS: 17.0
+
+packages:
+  FSRS:
+    url: https://github.com/open-spaced-repetition/swift-fsrs
+    from: 5.0.0
+  FabrikaAnalytics:
+    path: ../SharedModules/FabrikaAnalytics
+
+targets:
+  NoPressureApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: NoPressureApp
+    dependencies:
+      - package: FSRS
+      - package: FabrikaAnalytics
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.nopressure.app
+        INFOPLIST_FILE: NoPressureApp/Info.plist
+        DEVELOPMENT_TEAM: ""
+        CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "1"
+        SWIFT_VERSION: "5.9"
+      configFiles:
+        Debug: Config.xcconfig
+        Release: Config.xcconfig
+      configs:
+        Debug:
+          CODE_SIGN_IDENTITY: ""
+          CODE_SIGNING_REQUIRED: NO
+          CODE_SIGNING_ALLOWED: NO
+        Release:
+          CODE_SIGN_IDENTITY: ""
+          CODE_SIGNING_REQUIRED: NO
+          CODE_SIGNING_ALLOWED: NO

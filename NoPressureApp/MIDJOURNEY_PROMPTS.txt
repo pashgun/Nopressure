@@ -1,0 +1,73 @@
+# Midjourney Prompts for No Pressure Flashcards
+
+## General Base Prompt
+iOS 26 mobile app UI design, liquid glass design, dark theme, frosted glass effects with ultra-thin material blur, mesh gradient background with blurred purple (#BF5AF2) blue (#0A84FF) and pink (#FF375F) colored circles, modern minimalist interface, glassmorphism style, SF Symbols icons, high quality professional mockup, dark mode, iPhone 15 Pro screen, sleek and premium, continuous rounded corners --ar 9:19.5 --style raw --v 6
+
+---
+
+## Specific Screen Prompts
+
+### Welcome Screen
+iOS 26 flashcard app welcome screen, dark background with purple and blue mesh gradient circles, floating glass flashcards with subtle rotation, large "No Pressure Flashcards" title in white, "Learn without the pressure" subtitle in gray, purple glowing "Get Started" button at bottom, liquid glass effect, frosted glass, premium dark UI --ar 9:19.5 --v 6
+
+### How It Works - Snap & Learn
+iOS 26 onboarding screen, large camera icon with purple glow at top, "Snap & Learn" title, mockup showing camera scanning textbook transforming into flashcards, glass UI elements, dark theme with mesh gradient, progress dots at bottom, "Continue" button, liquid glass design --ar 9:19.5 --v 6
+
+### How It Works - No Guilt
+iOS 26 app screen, large pink heart icon with glow, "No Guilt, No Burnout" title, gentle calendar illustration with soft checkmarks, no red X marks, encouraging and calming design, frosted glass cards, dark background with pink and purple mesh gradient --ar 9:19.5 --v 6
+
+### Personalization - Goal Selection
+iOS 26 goal selection screen, "What's your goal?" title, 2x2 grid of large frosted glass cards with emojis: graduation cap, speech bubble, briefcase, brain, each card has purple border when selected, dark mesh gradient background, modern glassmorphism --ar 9:19.5 --v 6
+
+### Home Screen
+iOS 26 flashcard app home screen, "Good morning, Alex" greeting, large circular progress ring showing 0/20 cards in purple gradient, "Start Learning" button, "Due Today" section with horizontal scroll of deck preview cards, bottom tab bar with 5 icons, liquid glass effect throughout, dark theme with blue and purple mesh --ar 9:19.5 --v 6
+
+### Create Screen
+iOS 26 create screen, "Create Flashcards" title, three large vertical glass cards: camera icon "Snap notes", PDF icon "Import documents", pencil icon "Paste or type", each card has large emoji, title and subtitle, frosted glass with white borders, dark background, tab bar at bottom --ar 9:19.5 --v 6
+
+### Library Grid
+iOS 26 library screen, search bar at top with frosted glass, filter pills "All Recent Favorites", 2-column grid of deck cards with icons and progress rings, glassmorphism design, dark theme with purple accents, modern minimal iOS interface --ar 9:19.5 --v 6
+
+### Study Setup
+iOS 26 study setup screen, large centered deck preview card with icon and "24 cards to review", three study mode selector cards horizontally: flashcard, quiz, write icons, selected mode has purple border, large "Start Session" button with purple glow at bottom, liquid glass design --ar 9:19.5 --v 6
+
+### Flashcard Study Mode
+iOS 26 flashcard study interface, thin purple progress bar at top, "3 of 20" counter, large centered flip card with frosted glass showing "What is the capital of France?", four rating buttons at bottom: Again (pink), Hard (orange), Good (blue), Easy (green), dark mesh background --ar 9:19.5 --v 6
+
+### Quiz Mode
+iOS 26 quiz interface, progress bar and score display at top, question card with frosted glass, four answer option cards stacked vertically, selected answer has green checkmark and border, unselected are gray, "Next" button at bottom, glassmorphism dark theme --ar 9:19.5 --v 6
+
+### Session Complete
+iOS 26 completion screen, confetti celebration animation, large centered glass card with "Great job!" title, stats grid showing cards reviewed, accuracy percentage, time spent, two buttons "Continue" (purple) and "Done" (outline), colorful mesh gradient background with all accent colors --ar 9:19.5 --v 6
+
+---
+
+## Tips for Better Results
+
+1. Add "--style raw" for more literal interpretation
+2. Add "--v 6" for latest Midjourney version
+3. Use "--ar 9:19.5" for iPhone screen ratio
+4. Can add "--q 2" for higher quality (uses more credits)
+5. For iterations, use "--seed XXXX" to maintain consistency
+
+## Color Codes to Reference
+- Purple: #BF5AF2
+- Blue: #0A84FF
+- Pink: #FF375F
+- Green: #30D158
+- Orange: #FF9F0A
+- Background: #000000
+
+## Style Keywords to Emphasize
+- liquid glass
+- frosted glass
+- glassmorphism
+- ultra-thin material
+- mesh gradient
+- dark theme
+- iOS 26
+- premium
+- minimalist
+- continuous rounded corners
+- subtle glow
+- soft shadows

@@ -6,22 +6,31 @@ struct MainTabView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            // Tab content
-            TabView(selection: $selectedTab) {
-                HomeView()
-                    .tag(0)
+            // Full-screen background
+            NP.Colors.background
+                .ignoresSafeArea()
 
-                ExploreView()
-                    .tag(1)
-
-                ProfileView()
-                    .tag(2)
+            // Tab content — manual switching (no TabView to avoid system tab bar issues)
+            VStack(spacing: 0) {
+                Group {
+                    switch selectedTab {
+                    case 0:
+                        HomeView()
+                    case 1:
+                        ExploreView()
+                    case 2:
+                        ProfileView()
+                    default:
+                        HomeView()
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
 
-            // Custom Tab Bar (matches Figma: white bg, 3 tabs, purple active)
+            // Custom Tab Bar
             customTabBar
 
-            // Floating Action Button (+)
+            // FAB — floating above the tab bar
             fab
                 .offset(y: -32)
         }
@@ -34,28 +43,32 @@ struct MainTabView: View {
 
     private var customTabBar: some View {
         HStack {
-            solarTabItem(boldIcon: "solar-home-smile-bold", linearIcon: "solar-home-smile-linear", label: "Home", tag: 0)
+            tabItem(boldIcon: "solar-home-smile-bold", linearIcon: "solar-home-smile-linear", label: "Home", tag: 0)
+
             Spacer()
-            solarTabItem(boldIcon: "solar-compass-bold", linearIcon: "solar-compass-linear", label: "Explore", tag: 1)
+
+            tabItem(boldIcon: "solar-compass-bold", linearIcon: "solar-compass-linear", label: "Explore", tag: 1)
+
             Spacer()
+
             // Space for FAB
-            Color.clear.frame(width: 56)
+            Color.clear.frame(width: 56, height: 1)
+
             Spacer()
-            solarTabItem(boldIcon: "solar-user-bold", linearIcon: "solar-user-linear", label: "Profile", tag: 2)
-            Spacer()
-            // Balance spacer
-            Color.clear.frame(width: 0)
+
+            tabItem(boldIcon: "solar-user-bold", linearIcon: "solar-user-linear", label: "Profile", tag: 2)
         }
         .padding(.horizontal, NP.Spacing.xxl)
         .padding(.top, 12)
-        .padding(.bottom, 28) // safe area padding
+        .padding(.bottom, 28)
         .background(
             NP.Colors.surface
                 .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: -2)
+                .ignoresSafeArea(.container, edges: .bottom)
         )
     }
 
-    private func solarTabItem(boldIcon: String, linearIcon: String, label: String, tag: Int) -> some View {
+    private func tabItem(boldIcon: String, linearIcon: String, label: String, tag: Int) -> some View {
         let isSelected = selectedTab == tag
         return Button {
             withAnimation(.easeInOut(duration: 0.2)) {
@@ -84,11 +97,8 @@ struct MainTabView: View {
         Button {
             showingCreate = true
         } label: {
-            Image("solar-add")
-                .renderingMode(.template)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 24, height: 24)
+            Image(systemName: "plus")
+                .font(.system(size: 24, weight: .medium))
                 .foregroundColor(.white)
                 .frame(width: 56, height: 56)
                 .background(NP.Colors.primary)

@@ -47,7 +47,7 @@ struct HowItWorksView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // Top: illustration area with orange blob accents
+                // Top: illustration area — fills remaining space (Figma: H 678 Fill)
                 ZStack {
                     // Orange blob decorations (like Figma corners)
                     orangeBlobDecoration(alignment: features[currentPage].blobAlignment)
@@ -55,11 +55,10 @@ struct HowItWorksView: View {
                     // Illustration — SF Symbol as large icon with purple styling
                     illustrationArea(for: features[currentPage])
                 }
-                .frame(maxWidth: .infinity)
-                .frame(height: UIScreen.main.bounds.height * 0.50)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                // Bottom: white card with rounded top
-                VStack(spacing: 0) {
+                // Bottom: white card — hugs content (Figma: H Hug, padding L32 T0 R32 B32, gap 8)
+                VStack(spacing: 8) {
                     // Page dots
                     HStack(spacing: 8) {
                         ForEach(0..<features.count, id: \.self) { index in
@@ -69,22 +68,20 @@ struct HowItWorksView: View {
                                        height: index == currentPage ? 10 : 8)
                         }
                     }
-                    .padding(.top, 28)
-                    .padding(.bottom, 20)
+                    .padding(.top, 24)
+                    .padding(.bottom, 4)
 
                     // Subtitle — small caps tracking
                     Text(features[currentPage].subtitle)
                         .font(NP.Typography.overline)
                         .foregroundColor(NP.Colors.textSecondary)
                         .tracking(2)
-                        .padding(.bottom, 16)
 
                     // Title
                     Text(features[currentPage].title)
                         .font(NP.Typography.title1)
                         .foregroundColor(NP.Colors.textBlack)
                         .multilineTextAlignment(.center)
-                        .padding(.bottom, 12)
 
                     // Description
                     Text(features[currentPage].description)
@@ -92,8 +89,6 @@ struct HowItWorksView: View {
                         .foregroundColor(NP.Colors.textSecondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 32)
-
-                    Spacer()
 
                     // CTA Button — purple filled
                     Button {
@@ -109,6 +104,7 @@ struct HowItWorksView: View {
                             .npPrimaryButton()
                     }
                     .padding(.horizontal, 24)
+                    .padding(.top, 8)
 
                     // Skip
                     if currentPage < features.count - 1 {
@@ -119,11 +115,9 @@ struct HowItWorksView: View {
                                 .font(NP.Typography.subheadline)
                                 .foregroundColor(NP.Colors.textSecondary)
                         }
-                        .padding(.top, 12)
                     }
-
-                    Spacer().frame(height: 32)
                 }
+                .padding(.bottom, 32)
                 .frame(maxWidth: .infinity)
                 .background(
                     UnevenRoundedRectangle(

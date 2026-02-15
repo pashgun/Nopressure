@@ -58,6 +58,13 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Fonts/Manrope-VariableFont_wght.ttf</string>
+		<string>Fonts/IBMPlexMono-Regular.ttf</string>
+		<string>Fonts/IBMPlexMono-Medium.ttf</string>
+		<string>Fonts/IBMPlexMono-SemiBold.ttf</string>
+	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>We need camera access to scan your notes and textbooks for instant flashcard generation</string>
 	<key>NSPhotoLibraryUsageDescription</key>

@@ -58,16 +58,23 @@ struct HomeView: View {
     // MARK: - Header
 
     private var headerSection: some View {
-        VStack(alignment: .leading, spacing: NP.Spacing.xs) {
-            Text(formattedDate())
-                .font(NP.Typography.subheadline)
-                .foregroundColor(NP.Colors.textSecondary)
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: NP.Spacing.xs) {
+                Text(formattedDate().uppercased())
+                    .font(NP.Typography.overline)
+                    .foregroundColor(NP.Colors.textSecondary)
+                    .tracking(1.2)
 
-            Text(greetingText())
-                .font(NP.Typography.largeTitle)
-                .foregroundColor(NP.Colors.textBlack)
+                Text("Hi, \(userName)")
+                    .font(NP.Typography.largeTitle)
+                    .foregroundColor(NP.Colors.textBlack)
+            }
+
+            Spacer()
+
+            // Progress ring — in header, top right (per Figma)
+            progressRing
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, NP.Spacing.xxl)
     }
 
@@ -75,7 +82,7 @@ struct HomeView: View {
 
     private var heroCard: some View {
         VStack(spacing: 0) {
-            // Top area: illustration placeholder + progress ring overlay
+            // Top area: illustration
             ZStack {
                 // Orange blob background area
                 RoundedRectangle(cornerRadius: NP.Radius.lg, style: .continuous)
@@ -88,17 +95,6 @@ struct HomeView: View {
                     .scaledToFill()
                     .frame(maxWidth: .infinity, maxHeight: 200)
                     .clipped()
-
-                // Progress ring — top right
-                VStack {
-                    HStack {
-                        Spacer()
-                        progressRing
-                            .padding(.top, 16)
-                            .padding(.trailing, 16)
-                    }
-                    Spacer()
-                }
             }
             .frame(height: 200)
             .clipShape(
@@ -222,18 +218,6 @@ struct HomeView: View {
     }
 
     // MARK: - Helpers
-
-    private func greetingText() -> String {
-        let hour = Calendar.current.component(.hour, from: Date())
-        switch hour {
-        case 0..<12:
-            return "Good morning, \(userName)"
-        case 12..<17:
-            return "Good afternoon, \(userName)"
-        default:
-            return "Good evening, \(userName)"
-        }
-    }
 
     private func formattedDate() -> String {
         let formatter = DateFormatter()

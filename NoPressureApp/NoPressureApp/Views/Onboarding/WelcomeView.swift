@@ -1,44 +1,49 @@
 import SwiftUI
 
-/// Splash / Welcome screen — matches Figma "Splash" (node 2:889)
-/// Orange blob background with "no pressure" logo and subtitle
+/// Splash / Welcome screen — matches Figma design
+/// White background with organic orange blob shape centered, "no pressure" logo + subtitle
 struct WelcomeView: View {
     var onContinue: () -> Void = {}
 
+    @State private var blobPhase: CGFloat = 0
+
     var body: some View {
         ZStack {
-            // Splash background — orange accent
-            NP.Colors.accent
+            // White background
+            Color.white
                 .ignoresSafeArea()
 
-            VStack(spacing: 40) {
+            // Organic orange blob centered
+            OrangeBlob(phase: blobPhase)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            NP.Colors.accent.opacity(0.9),
+                            NP.Colors.accent
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(width: 340, height: 420)
+                .shadow(color: NP.Colors.accent.opacity(0.3), radius: 40, x: 0, y: 20)
+
+            // Text content centered
+            VStack(spacing: NP.Spacing.lg) {
+                Text("no pressure")
+                    .font(NP.Typography.logoTitle)
+                    .foregroundColor(.black)
+                    .multilineTextAlignment(.center)
+
+                Text("Study flashcards without guilt")
+                    .font(NP.Typography.title3)
+                    .foregroundColor(NP.Colors.textSecondary)
+            }
+
+            // Tap anywhere to continue (splash auto-advances or tap)
+            VStack {
                 Spacer()
 
-                // Logo and Title
-                VStack(spacing: NP.Spacing.lg) {
-                    // Decorative circle (matches Figma Splash blob)
-                    Circle()
-                        .fill(Color.white.opacity(0.15))
-                        .frame(width: 120, height: 120)
-                        .overlay(
-                            Circle()
-                                .fill(Color.white.opacity(0.1))
-                                .frame(width: 80, height: 80)
-                        )
-
-                    Text("no pressure")
-                        .font(NP.Typography.logoTitle)
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-
-                    Text("Study flashcards without guilt")
-                        .font(NP.Typography.title3)
-                        .foregroundColor(.white.opacity(0.85))
-                }
-
-                Spacer()
-
-                // Get Started Button — white on orange bg
                 Button {
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
                         onContinue()
@@ -46,16 +51,73 @@ struct WelcomeView: View {
                 } label: {
                     Text("Get Started")
                         .font(NP.Typography.bodySemibold)
-                        .foregroundColor(NP.Colors.accent)
+                        .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
-                        .background(Color.white)
+                        .background(NP.Colors.primary)
                         .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
                 }
                 .padding(.horizontal, 32)
-
-                Spacer().frame(height: 60)
+                .padding(.bottom, 60)
             }
         }
+        .onAppear {
+            withAnimation(.easeInOut(duration: 6).repeatForever(autoreverses: true)) {
+                blobPhase = 1
+            }
+        }
+    }
+}
+
+// MARK: - Organic Blob Shape (mimics Figma's wavy blob)
+
+struct OrangeBlob: Shape {
+    var phase: CGFloat = 0
+
+    var animatableData: CGFloat {
+        get { phase }
+        set { phase = newValue }
+    }
+
+    func path(in rect: CGRect) -> Path {
+        let w = rect.width
+        let h = rect.height
+        let cx = w / 2
+        let cy = h / 2
+
+        // Radii for 8 control points around the blob, with gentle animation
+        let baseRadii: [CGFloat] = [0.46, 0.50, 0.44, 0.52, 0.48, 0.42, 0.50, 0.45]
+        let animOffsets: [CGFloat] = [0.03, -0.02, 0.04, -0.03, 0.02, 0.04, -0.03, 0.02]
+
+        let n = baseRadii.count
+        var points: [CGPoint] = []
+
+        for i in 0..<n {
+            let angle = (CGFloat(i) / CGFloat(n)) * 2 * .pi - .pi / 2
+            let r = (baseRadii[i] + animOffsets[i] * phase) * min(w, h)
+            let x = cx + r * cos(angle)
+            let y = cy + r * sin(angle)
+            points.append(CGPoint(x: x, y: y))
+        }
+
+        var path = Path()
+        path.move(to: points[0])
+
+        for i in 0..<n {
+            let current = points[i]
+            let next = points[(i + 1) % n]
+            let cp1 = CGPoint(
+                x: current.x + (next.x - points[(i + n - 1) % n].x) / 4,
+                y: current.y + (next.y - points[(i + n - 1) % n].y) / 4
+            )
+            let cp2 = CGPoint(
+                x: next.x - (points[(i + 2) % n].x - current.x) / 4,
+                y: next.y - (points[(i + 2) % n].y - current.y) / 4
+            )
+            path.addCurve(to: next, control1: cp1, control2: cp2)
+        }
+
+        path.closeSubpath()
+        return path
     }
 }

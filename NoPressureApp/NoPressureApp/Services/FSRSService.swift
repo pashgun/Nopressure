@@ -25,20 +25,18 @@ class FSRSService {
     }
 
     func processReview(card: Flashcard, rating: AppRating, now: Date = Date()) -> FSRSData {
-        guard let fsrsData = card.fsrsData else {
-            return FSRSData()
-        }
+        let fsrsData = card.fsrsData
 
-        // Create FSRS Card from our model
+        // Create FSRS Card from our model (or a fresh .new card if no FSRS data yet)
         let fsrsCard = Card(
-            due: fsrsData.nextReview ?? now,
-            stability: fsrsData.stability,
-            difficulty: fsrsData.difficulty,
+            due: fsrsData?.nextReview ?? now,
+            stability: fsrsData?.stability ?? 0,
+            difficulty: fsrsData?.difficulty ?? 0,
             elapsedDays: 0,
             scheduledDays: 0,
-            reps: fsrsData.reps,
-            lapses: fsrsData.lapses,
-            state: fsrsData.reps == 0 ? .new : .review
+            reps: fsrsData?.reps ?? 0,
+            lapses: fsrsData?.lapses ?? 0,
+            state: (fsrsData?.reps ?? 0) == 0 ? .new : .review
         )
 
         // Create SchedulingInfo
@@ -47,8 +45,8 @@ class FSRSService {
         // Get the appropriate record based on rating (using FSRS Rating enum)
         // Use safe optional binding with fallback to .good rating
         guard let recordingLog = schedulingInfo[rating.fsrsRating] ?? schedulingInfo[.good] else {
-            // Fallback: return current FSRSData if scheduling info is completely missing
-            return fsrsData
+            // Fallback: return current FSRSData or a new one if scheduling info is completely missing
+            return fsrsData ?? FSRSData()
         }
 
         // Update FSRSData
@@ -70,15 +68,19 @@ class FSRSService {
 
         for deck in decks {
             for card in deck.cards {
-                guard let fsrsData = card.fsrsData else { continue }
+                guard let fsrsData = card.fsrsData else {
+                    // Cards with no FSRS data are new — always due
+                    dueCards.append(card)
+                    continue
+                }
 
-                // Card is due if nextReview is nil (new card) or nextReview is before/equal to current date
+                // Card is due if nextReview is nil or nextReview is before/equal to current date
                 if let nextReview = fsrsData.nextReview {
                     if nextReview <= date {
                         dueCards.append(card)
                     }
                 } else {
-                    // New cards are always due
+                    // nextReview is nil — treat as due
                     dueCards.append(card)
                 }
             }

@@ -82,7 +82,7 @@ struct HowItWorksView: View {
                         onComplete()
                     }
                 } label: {
-                    Text(currentPage < features.count - 1 ? "Continue" : "Next")
+                    Text(currentPage < features.count - 1 ? "Continue" : "Get Started")
                         .font(NP.Typography.bodySemibold)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)

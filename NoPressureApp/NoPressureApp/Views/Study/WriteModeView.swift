@@ -20,6 +20,16 @@ struct WriteModeView: View {
     private let similarityThreshold = 0.8 // 80% similarity required
 
     var body: some View {
+        if cards.isEmpty {
+            VStack(spacing: NP.Spacing.lg) {
+                Text("No cards available")
+                    .font(NP.Typography.title3)
+                    .foregroundColor(NP.Colors.textSecondary)
+                Button("Go Back") { onComplete() }
+                    .font(NP.Typography.bodySemibold)
+                    .foregroundColor(NP.Colors.primary)
+            }
+        } else {
         VStack(spacing: NP.Spacing.xxxl) {
             // Progress
             VStack(spacing: NP.Spacing.md) {
@@ -161,6 +171,7 @@ struct WriteModeView: View {
         } message: {
             Text(errorMessage)
         }
+        } // else (cards not empty)
     }
 
     private var currentCardSafe: Flashcard? {

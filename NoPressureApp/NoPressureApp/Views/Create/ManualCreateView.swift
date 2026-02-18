@@ -15,6 +15,11 @@ struct ManualCreateView: View {
     @State private var cards: [CardDraft] = [CardDraft(), CardDraft()]
     @State private var showError = false
     @State private var errorMessage = ""
+    @State private var showingCameraCapture = false
+    @State private var capturedImage: UIImage?
+    @State private var isProcessingPhoto = false
+
+    private let ocrService = OCRService()
 
     let availableColors = [
         "#5533FF", // Purple (primary)
@@ -69,6 +74,42 @@ struct ManualCreateView: View {
             Button("OK") { }
         } message: {
             Text(errorMessage)
+        }
+        .sheet(isPresented: $showingCameraCapture) {
+            ImagePicker(image: $capturedImage)
+        }
+        .onChange(of: capturedImage) { _, newImage in
+            if let image = newImage {
+                Task {
+                    await processPhotoToCard(image: image)
+                }
+            }
+        }
+    }
+
+    private func processPhotoToCard(image: UIImage) async {
+        await MainActor.run { isProcessingPhoto = true }
+
+        do {
+            let text = try await ocrService.extractText(from: image)
+            await MainActor.run {
+                // Add a new card with extracted text as the front
+                let draft = CardDraft()
+                cards.append(draft)
+                // Set the front text of the last card
+                if let lastIndex = cards.indices.last {
+                    cards[lastIndex].front = text.prefix(500).description
+                }
+                isProcessingPhoto = false
+                capturedImage = nil
+            }
+        } catch {
+            await MainActor.run {
+                showError = true
+                errorMessage = "Could not read text from photo: \(error.localizedDescription)"
+                isProcessingPhoto = false
+                capturedImage = nil
+            }
         }
     }
 
@@ -173,25 +214,57 @@ struct ManualCreateView: View {
                 )
             }
 
-            Button {
-                withAnimation {
-                    cards.append(CardDraft())
+            // Add Card buttons
+            HStack(spacing: NP.Spacing.md) {
+                Button {
+                    withAnimation {
+                        cards.append(CardDraft())
+                    }
+                } label: {
+                    HStack(spacing: NP.Spacing.sm) {
+                        Image(systemName: "plus.circle.fill")
+                            .foregroundColor(Color(hex: selectedColor))
+
+                        Text("Add Card")
+                            .font(NP.Typography.bodySemibold)
+                            .foregroundColor(NP.Colors.textPrimary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, NP.Spacing.lg)
+                    .background(NP.Colors.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
+                    .npCardShadow()
                 }
-            } label: {
+
+                Button {
+                    showingCameraCapture = true
+                } label: {
+                    HStack(spacing: NP.Spacing.sm) {
+                        Image(systemName: "camera.fill")
+                            .foregroundColor(NP.Colors.accent)
+
+                        Text("From Photo")
+                            .font(NP.Typography.bodySemibold)
+                            .foregroundColor(NP.Colors.textPrimary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, NP.Spacing.lg)
+                    .background(NP.Colors.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
+                    .npCardShadow()
+                }
+            }
+
+            // Processing indicator
+            if isProcessingPhoto {
                 HStack(spacing: NP.Spacing.md) {
-                    Image(systemName: "plus.circle.fill")
-                        .foregroundColor(Color(hex: selectedColor))
-
-                    Text("Add Card")
-                        .font(NP.Typography.bodySemibold)
-                        .foregroundColor(NP.Colors.textPrimary)
-
-                    Spacer()
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: NP.Colors.primary))
+                    Text("Reading text from photo...")
+                        .font(NP.Typography.subheadline)
+                        .foregroundColor(NP.Colors.textSecondary)
                 }
-                .padding(NP.Spacing.xl)
-                .background(NP.Colors.surface)
-                .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
-                .npCardShadow()
+                .padding(NP.Spacing.lg)
             }
         }
         .padding(.horizontal, NP.Spacing.xxl)

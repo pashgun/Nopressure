@@ -5,64 +5,62 @@ struct CreateView: View {
     var onDeckCreated: ((Deck) -> Void)?
 
     @State private var showingManualCreate = false
-    @State private var showingCameraCapture = false
-    @State private var showingPDFImport = false
-    @State private var showingTextImport = false
+    @State private var showingAIGeneration = false
+    @State private var showingImportDeck = false
 
     var body: some View {
         NavigationStack {
             ZStack {
                 MeshBackground()
 
-                VStack(spacing: NP.Spacing.xxl) {
-                    Text("Create Flashcards")
-                        .font(NP.Typography.largeTitle)
-                        .foregroundColor(NP.Colors.textBlack)
-                        .padding(.top, 60)
+                VStack(spacing: NP.Spacing.xxxl) {
+                    // Header
+                    VStack(spacing: NP.Spacing.sm) {
+                        Text("Create Flashcards")
+                            .font(NP.Typography.largeTitle)
+                            .foregroundColor(NP.Colors.textBlack)
+
+                        Text("Choose how you want to create your deck")
+                            .font(NP.Typography.subheadline)
+                            .foregroundColor(NP.Colors.textSecondary)
+                    }
+                    .padding(.top, 60)
 
                     Spacer()
 
-                    // Three input options
+                    // Three equal options
                     VStack(spacing: NP.Spacing.lg) {
                         CreateOptionCard(
-                            icon: "camera.fill",
-                            emoji: "📷",
-                            title: "Camera",
-                            subtitle: "Snap notes or textbook"
-                        ) {
-                            showingCameraCapture = true
-                        }
-
-                        CreateOptionCard(
-                            icon: "doc.fill",
-                            emoji: "📄",
-                            title: "PDF",
-                            subtitle: "Import documents"
-                        ) {
-                            showingPDFImport = true
-                        }
-
-                        CreateOptionCard(
-                            icon: "text.alignleft",
                             emoji: "✍️",
-                            title: "Text",
-                            subtitle: "Paste or type"
+                            title: "Manual",
+                            subtitle: "Create cards one by one",
+                            accentColor: NP.Colors.primary
                         ) {
-                            showingTextImport = true
+                            showingManualCreate = true
+                        }
+
+                        CreateOptionCard(
+                            emoji: "✨",
+                            title: "AI Generation",
+                            subtitle: "Generate from text, photo, or PDF",
+                            accentColor: NP.Colors.accent
+                        ) {
+                            showingAIGeneration = true
+                        }
+
+                        CreateOptionCard(
+                            emoji: "📥",
+                            title: "Import Deck",
+                            subtitle: "Anki, Google Sheets, CSV",
+                            accentColor: NP.Colors.success
+                        ) {
+                            showingImportDeck = true
                         }
                     }
                     .padding(.horizontal, NP.Spacing.xxl)
 
                     Spacer()
-
-                    Button {
-                        showingManualCreate = true
-                    } label: {
-                        Text("Create Manually")
-                            .font(NP.Typography.subheadlineSemibold)
-                            .foregroundColor(NP.Colors.primary)
-                    }
-                    .padding(.bottom, 100)
+                    Spacer()
                 }
             }
             .navigationBarHidden(true)
@@ -72,40 +70,43 @@ struct CreateView: View {
                     showingManualCreate = false
                 })
             }
-            .sheet(isPresented: $showingCameraCapture) {
-                CameraCaptureView(onDeckCreated: { deck in
+            .fullScreenCover(isPresented: $showingAIGeneration) {
+                AIGenerationView(onDeckCreated: { deck in
                     onDeckCreated?(deck)
-                    showingCameraCapture = false
+                    showingAIGeneration = false
                 })
             }
-            .sheet(isPresented: $showingPDFImport) {
-                PDFImportView(onDeckCreated: { deck in
+            .sheet(isPresented: $showingImportDeck) {
+                ImportDeckView(onDeckCreated: { deck in
                     onDeckCreated?(deck)
-                    showingPDFImport = false
-                })
-            }
-            .sheet(isPresented: $showingTextImport) {
-                TextImportView(onDeckCreated: { deck in
-                    onDeckCreated?(deck)
-                    showingTextImport = false
+                    showingImportDeck = false
                 })
             }
         }
     }
 }
 
+// MARK: - Create Option Card
+
 struct CreateOptionCard: View {
-    let icon: String
     let emoji: String
     let title: String
     let subtitle: String
+    var accentColor: Color = NP.Colors.primary
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             HStack(spacing: NP.Spacing.lg) {
-                Text(emoji)
-                    .font(NP.Typography.IconSize.hero)
+                // Emoji icon in a tinted circle
+                ZStack {
+                    Circle()
+                        .fill(accentColor.opacity(0.12))
+                        .frame(width: 56, height: 56)
+
+                    Text(emoji)
+                        .font(.system(size: 28))
+                }
 
                 VStack(alignment: .leading, spacing: NP.Spacing.xs) {
                     Text(title)
@@ -120,6 +121,7 @@ struct CreateOptionCard: View {
                 Spacer()
 
                 Image(systemName: "chevron.right")
+                    .font(NP.Typography.IconSize.sm)
                     .foregroundColor(NP.Colors.textSecondary)
             }
             .padding(NP.Spacing.xxl)
@@ -128,4 +130,8 @@ struct CreateOptionCard: View {
             .npCardShadow()
         }
     }
+}
+
+#Preview {
+    CreateView(onDeckCreated: nil)
 }

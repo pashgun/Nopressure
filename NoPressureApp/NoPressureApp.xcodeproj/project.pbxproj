@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		0016E1D39FF67E4EC0006AD6 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A25D2C84EC622A27B493D6E /* Config.swift */; };
-		A1B2C3D4E5F6012345678ABC /* AppSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6012345678ABCDE /* AppSettingsView.swift */; };
 		0328C5AB4F737CE2A99AA725 /* DeckDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FC0DED7B4B0C4676301A7B9 /* DeckDetailView.swift */; };
 		0B6A3345DDC8A8CAF34F63F9 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34ACF26DB4E2A531BB0E647C /* MainTabView.swift */; };
 		0B9DF56E0A7E2BEB18685561 /* StudySessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FBE74B3F8B9BBBCB6A32CDF /* StudySessionView.swift */; };
@@ -20,14 +19,18 @@
 		19A7047FE6890A2BDBF3490C /* Deck.swift in Sources */ = {isa = PBXBuildFile; fileRef = F28E53851BFF314AAAE774C7 /* Deck.swift */; };
 		1D6F2E413CA2B87341B8213F /* ExploreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81016EF612CA55664CC9F5A8 /* ExploreView.swift */; };
 		22280BF4D7B69F21D26F09DE /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE097A7AF3D9559B389676E5 /* DesignSystem.swift */; };
+		23356CDBD201D7D87E2104D5 /* BundledDecksService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167734017621DAA97811D61D /* BundledDecksService.swift */; };
 		271367637D65ED1DF0E16449 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E8F63765F1221C52DED4472 /* HomeView.swift */; };
 		2E4523F730999685AFF06E3E /* StatisticsDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DD1239258CC26B6560F92A5 /* StatisticsDetailView.swift */; };
 		2FCC1E455E5E5A9191C720B2 /* ReviewGeneratedCardsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371F1B41A265F6F8D46C9EB2 /* ReviewGeneratedCardsView.swift */; };
+		32D42F924D9F5A9F0BB21BA2 /* AppSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036AFC59B0FCF3C7DCDF178F /* AppSettingsView.swift */; };
 		353364370CACDFB841911158 /* .design-rules.md in Resources */ = {isa = PBXBuildFile; fileRef = 01A9238B28D4E2F1E0554976 /* .design-rules.md */; };
 		37853A3B3456B35E297E1315 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844A73BB6C77BF6C2B65ABDB /* User.swift */; };
+		384ADE7AE4AF1B5C28FD0D51 /* BrowseDecksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04158456EDBFEF21C526004 /* BrowseDecksView.swift */; };
 		4342BCFE3D3FF0897F36BC0F /* NoPressureApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8894857B0693A6BF42591B48 /* NoPressureApp.swift */; };
 		478197A9E7547FA70CFAE421 /* FSRSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68F61BE239C902084205E68B /* FSRSService.swift */; };
 		48629B6AD84CC2C02CCC671C /* WriteModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D7737698B6F0CC3330C27B /* WriteModeView.swift */; };
+		4E38AE5B6C7C76ED8A56CADE /* ImportDeckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC4771EE4686B2F937E0F2F /* ImportDeckView.swift */; };
 		4E6D1207A1484D14F9870355 /* CameraCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9295D506EE3E8C849B29B588 /* CameraCaptureView.swift */; };
 		5168A6A205BDD2090B40ED6D /* TextImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 818D57D1E04D194A7D8D9A6A /* TextImportView.swift */; };
 		567C5EC1912D8FE7955C08E3 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2088245CE657B505451253DD /* SignUpView.swift */; };
@@ -50,6 +53,7 @@
 		AA5C1A60B1B80080BBAD5339 /* String+Levenshtein.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FEB115562D504C705A97CFD /* String+Levenshtein.swift */; };
 		AF9C23F93050DBF83A996017 /* DeckSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6DFE416C848314DBF5B7F3 /* DeckSettingsView.swift */; };
 		AFFCE726BC458B46118154AF /* UserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4896BB1BFB20A651465D5EA5 /* UserService.swift */; };
+		B17CFFC3AFBF001B7A9F03B5 /* AIGenerationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADBA08D08045E9FFCA3BE734 /* AIGenerationView.swift */; };
 		BA1E900EAA853A550842E49C /* AIGenerationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 956DA56ADC7748A24B0BFA31 /* AIGenerationService.swift */; };
 		BEAFCB069D84313329DB3588 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C8BE828ED3F55144022D8DC2 /* Assets.xcassets */; };
 		C051DA9F45BB2D314AA6401D /* MeshBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E80C64B50C887326D56DD84 /* MeshBackground.swift */; };
@@ -63,9 +67,10 @@
 
 /* Begin PBXFileReference section */
 		01A9238B28D4E2F1E0554976 /* .design-rules.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ".design-rules.md"; sourceTree = "<group>"; };
-		B2C3D4E5F6012345678ABCDE /* AppSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsView.swift; sourceTree = "<group>"; };
 		03087049DD9EE749C24EB5F1 /* NoPressureApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = NoPressureApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		036AFC59B0FCF3C7DCDF178F /* AppSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsView.swift; sourceTree = "<group>"; };
 		0E80C64B50C887326D56DD84 /* MeshBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshBackground.swift; sourceTree = "<group>"; };
+		167734017621DAA97811D61D /* BundledDecksService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BundledDecksService.swift; sourceTree = "<group>"; };
 		1DC6FBB924C6797E642EED45 /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
 		2088245CE657B505451253DD /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
 		2A806B0AD9DCE915CAF362ED /* IBMPlexMono-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IBMPlexMono-SemiBold.ttf"; sourceTree = "<group>"; };
@@ -105,14 +110,17 @@
 		9295D506EE3E8C849B29B588 /* CameraCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCaptureView.swift; sourceTree = "<group>"; };
 		956DA56ADC7748A24B0BFA31 /* AIGenerationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGenerationService.swift; sourceTree = "<group>"; };
 		99A00396BF9BF5F5DCD59EFB /* Flashcard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Flashcard.swift; sourceTree = "<group>"; };
+		ADBA08D08045E9FFCA3BE734 /* AIGenerationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGenerationView.swift; sourceTree = "<group>"; };
 		AE4EC9831A53AEF9050925E7 /* FSRSData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FSRSData.swift; sourceTree = "<group>"; };
 		AF5AAACE36EFA22F2E02CA48 /* QuizModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizModeView.swift; sourceTree = "<group>"; };
 		BC2F66ACE002A6C6562215D3 /* OnboardingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCoordinator.swift; sourceTree = "<group>"; };
 		BE097A7AF3D9559B389676E5 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 		C615F72905DFA4B4E078354B /* StudyModeSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyModeSelector.swift; sourceTree = "<group>"; };
 		C8BE828ED3F55144022D8DC2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		CCC4771EE4686B2F937E0F2F /* ImportDeckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportDeckView.swift; sourceTree = "<group>"; };
 		D1A87BE6B8611871F6DDFFCD /* PersonalizationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalizationView.swift; sourceTree = "<group>"; };
 		E992BEA219E45CEB7229F1E3 /* OCRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRService.swift; sourceTree = "<group>"; };
+		F04158456EDBFEF21C526004 /* BrowseDecksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseDecksView.swift; sourceTree = "<group>"; };
 		F28E53851BFF314AAAE774C7 /* Deck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Deck.swift; sourceTree = "<group>"; };
 		F908D8AE559AA36D6AE064FC /* LiquidGlass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlass.swift; sourceTree = "<group>"; };
 		FE919761BE3C34A167172578 /* GeneratedFlashcard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneratedFlashcard.swift; sourceTree = "<group>"; };
@@ -183,7 +191,9 @@
 		508C2EC47A83A02CF89E7020 /* Create */ = {
 			isa = PBXGroup;
 			children = (
+				ADBA08D08045E9FFCA3BE734 /* AIGenerationView.swift */,
 				37ED1D0E78AB1DDBCA836E85 /* CreateView.swift */,
+				CCC4771EE4686B2F937E0F2F /* ImportDeckView.swift */,
 				5527956C6ACB5381E1A99882 /* ManualCreateView.swift */,
 				371F1B41A265F6F8D46C9EB2 /* ReviewGeneratedCardsView.swift */,
 				CCC47170601471FEBA5F7538 /* CameraCapture */,
@@ -267,7 +277,7 @@
 		99F3AE76AFA3DACF897EEC5E /* Profile */ = {
 			isa = PBXGroup;
 			children = (
-				B2C3D4E5F6012345678ABCDE /* AppSettingsView.swift */,
+				036AFC59B0FCF3C7DCDF178F /* AppSettingsView.swift */,
 				6175CA0E75B9108189BD93FF /* ProfileView.swift */,
 				3DD1239258CC26B6560F92A5 /* StatisticsDetailView.swift */,
 			);
@@ -278,6 +288,7 @@
 			isa = PBXGroup;
 			children = (
 				956DA56ADC7748A24B0BFA31 /* AIGenerationService.swift */,
+				167734017621DAA97811D61D /* BundledDecksService.swift */,
 				68F61BE239C902084205E68B /* FSRSService.swift */,
 				E992BEA219E45CEB7229F1E3 /* OCRService.swift */,
 				4896BB1BFB20A651465D5EA5 /* UserService.swift */,
@@ -319,6 +330,7 @@
 		C167DD5AD91B0604386C69C4 /* Library */ = {
 			isa = PBXGroup;
 			children = (
+				F04158456EDBFEF21C526004 /* BrowseDecksView.swift */,
 				814B1F3BDA15D821AB7F2F34 /* LibraryView.swift */,
 			);
 			path = Library;
@@ -435,6 +447,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				BA1E900EAA853A550842E49C /* AIGenerationService.swift in Sources */,
+				B17CFFC3AFBF001B7A9F03B5 /* AIGenerationView.swift in Sources */,
+				32D42F924D9F5A9F0BB21BA2 /* AppSettingsView.swift in Sources */,
+				384ADE7AE4AF1B5C28FD0D51 /* BrowseDecksView.swift in Sources */,
+				23356CDBD201D7D87E2104D5 /* BundledDecksService.swift in Sources */,
 				4E6D1207A1484D14F9870355 /* CameraCaptureView.swift in Sources */,
 				CDBAACDCFC18C72FF26A071F /* CardEditView.swift in Sources */,
 				13553BF41137B578268FA7FD /* CardListView.swift in Sources */,
@@ -454,13 +470,13 @@
 				C7F9C64B1522EB751646CC4B /* GeneratedFlashcard.swift in Sources */,
 				271367637D65ED1DF0E16449 /* HomeView.swift in Sources */,
 				5C2B1DC10FBF98358A2F2DE7 /* HowItWorksView.swift in Sources */,
+				4E38AE5B6C7C76ED8A56CADE /* ImportDeckView.swift in Sources */,
 				CFD69B660D27556E871ADD81 /* LibraryView.swift in Sources */,
 				630BA85DE3E2A3C945E14631 /* LiquidGlass.swift in Sources */,
 				0B6A3345DDC8A8CAF34F63F9 /* MainTabView.swift in Sources */,
 				92F46BDF211C84EAB8F759F0 /* ManualCreateView.swift in Sources */,
 				C051DA9F45BB2D314AA6401D /* MeshBackground.swift in Sources */,
 				4342BCFE3D3FF0897F36BC0F /* NoPressureApp.swift in Sources */,
-				A1B2C3D4E5F6012345678ABC /* AppSettingsView.swift in Sources */,
 				16B09FBD6EE5EF0504F68D7C /* OCRService.swift in Sources */,
 				E1FB510EEC8E30CAD077A597 /* OnboardingCoordinator.swift in Sources */,
 				9BE469B27D0C7AF3792BA8BC /* PDFImportView.swift in Sources */,

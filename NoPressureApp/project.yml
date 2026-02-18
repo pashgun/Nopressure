@@ -7,8 +7,7 @@ options:
 
 packages:
   FSRS:
-    url: https://github.com/open-spaced-repetition/swift-fsrs
-    from: 5.0.0
+    path: ../swift-fsrs
   FabrikaAnalytics:
     path: ../SharedModules/FabrikaAnalytics
 

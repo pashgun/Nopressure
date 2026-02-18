@@ -30,7 +30,7 @@ extension String {
             for j in 1...otherCount {
                 let cost = self[self.index(self.startIndex, offsetBy: i - 1)] == other[other.index(other.startIndex, offsetBy: j - 1)] ? 0 : 1
 
-                matrix[i][j] = min(
+                matrix[i][j] = Swift.min(
                     matrix[i - 1][j] + 1,      // deletion
                     matrix[i][j - 1] + 1,      // insertion
                     matrix[i - 1][j - 1] + cost // substitution

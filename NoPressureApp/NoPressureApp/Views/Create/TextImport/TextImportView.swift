@@ -5,6 +5,9 @@ struct TextImportView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
+    /// Called with the created deck after save; parent can then navigate to DeckDetail.
+    var onDeckCreated: ((Deck) -> Void)?
+
     @State private var inputText = ""
     @State private var isGenerating = false
     @State private var generatedCards: [GeneratedFlashcard] = []
@@ -73,7 +76,7 @@ struct TextImportView: View {
                                         inputText = ""
                                     }
                                     .font(NP.Typography.caption1Semibold)
-                                    .foregroundColor(Color(hex: "#FF453A"))
+                                    .foregroundColor(NP.Colors.error)
                                 }
                             }
                         }
@@ -83,7 +86,7 @@ struct TextImportView: View {
                         if let error = errorMessage {
                             Text(error)
                                 .font(NP.Typography.caption1)
-                                .foregroundColor(Color(hex: "#FF453A"))
+                                .foregroundColor(NP.Colors.error)
                                 .padding(.horizontal, NP.Spacing.xxl)
                                 .multilineTextAlignment(.center)
                         }
@@ -124,7 +127,7 @@ struct TextImportView: View {
             }
             .navigationTitle("Text Import")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
+            .toolbar(content: {
                 ToolbarItem(placement: .navigationBarLeading) {
                     if !showingReview {
                         Button("Cancel") {
@@ -133,7 +136,7 @@ struct TextImportView: View {
                         .foregroundColor(NP.Colors.primary)
                     }
                 }
-            }
+            })
         }
         .alert("Error", isPresented: $showSaveError) {
             Button("OK") { }
@@ -184,6 +187,7 @@ struct TextImportView: View {
 
         do {
             try modelContext.save()
+            onDeckCreated?(deck)
             dismiss()
         } catch {
             showSaveError = true
@@ -193,5 +197,5 @@ struct TextImportView: View {
 }
 
 #Preview {
-    TextImportView()
+    TextImportView(onDeckCreated: nil)
 }

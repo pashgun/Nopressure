@@ -14,6 +14,8 @@ struct ProfileView: View {
         users.first?.name ?? "Friend"
     }
 
+    @State private var showingSettings = false
+
     /// Decks that have been fully studied (all cards reviewed at least once)
     private var finishedDecks: [Deck] {
         decks.filter { $0.lastStudied != nil }
@@ -28,7 +30,7 @@ struct ProfileView: View {
                     VStack(spacing: NP.Spacing.xxl) {
                         // Header
                         profileHeader
-                            .padding(.top, 12)
+                            .padding(.top, NP.Spacing.md)
 
                         // Statistics Cards
                         statisticsSection
@@ -55,7 +57,7 @@ struct ProfileView: View {
             ZStack {
                 Circle()
                     .fill(NP.Colors.lightPurple)
-                    .frame(width: 56, height: 56)
+                    .frame(width: NP.Size.avatarSize, height: NP.Size.avatarSize)
 
                 Text(String(userName.prefix(1)).uppercased())
                     .font(NP.Typography.title2)
@@ -76,7 +78,7 @@ struct ProfileView: View {
 
             // Settings button
             Button {
-                // Open settings
+                showingSettings = true
             } label: {
                 Image(systemName: "gearshape.fill")
                     .font(NP.Typography.IconSize.lg)
@@ -84,21 +86,72 @@ struct ProfileView: View {
             }
         }
         .padding(.horizontal, NP.Spacing.xxl)
+        .sheet(isPresented: $showingSettings) {
+            AppSettingsView()
+        }
+    }
+
+    private var currentStreak: Int {
+        var streak = 0
+        var checkDate = Calendar.current.startOfDay(for: Date())
+        let allCards = decks.flatMap { $0.cards }
+
+        while true {
+            let nextDay = Calendar.current.date(byAdding: .day, value: 1, to: checkDate)!
+            let hasActivity = allCards.contains { card in
+                guard let lastReview = card.fsrsData?.lastReview else { return false }
+                return lastReview >= checkDate && lastReview < nextDay
+            }
+
+            if hasActivity {
+                streak += 1
+                guard let previousDay = Calendar.current.date(byAdding: .day, value: -1, to: checkDate) else { break }
+                checkDate = previousDay
+            } else if streak == 0 {
+                guard let previousDay = Calendar.current.date(byAdding: .day, value: -1, to: checkDate) else { break }
+                checkDate = previousDay
+            } else {
+                break
+            }
+        }
+        return streak
+    }
+
+    private var totalStudied: Int {
+        decks.reduce(0) { total, deck in
+            total + deck.cards.filter { $0.fsrsData?.reps ?? 0 > 0 }.count
+        }
     }
 
     // MARK: - Statistics Cards (from Figma: Current Streak, Cards Learned)
 
     private var statisticsSection: some View {
         VStack(alignment: .leading, spacing: NP.Spacing.lg) {
-            Text("Statistics")
-                .font(NP.Typography.title2)
-                .foregroundColor(NP.Colors.textBlack)
-                .padding(.horizontal, NP.Spacing.xxl)
+            HStack {
+                Text("Statistics")
+                    .font(NP.Typography.title2)
+                    .foregroundColor(NP.Colors.textBlack)
+
+                Spacer()
+
+                NavigationLink {
+                    StatisticsDetailView()
+                } label: {
+                    HStack(spacing: NP.Spacing.xs) {
+                        Text("See All")
+                            .font(NP.Typography.subheadlineSemibold)
+                        Image(systemName: "chevron.right")
+                            .font(NP.Typography.caption1)
+                    }
+                    .foregroundColor(NP.Colors.primary)
+                }
+            }
+            .padding(.horizontal, NP.Spacing.xxl)
 
             HStack(spacing: NP.Spacing.md) {
                 StatCard(
                     title: "Current Streak",
-                    value: "7",
+                    value: "\(currentStreak)",
                     unit: "days",
                     iconName: "flame.fill",
                     iconColor: NP.Colors.accent
@@ -106,7 +159,7 @@ struct ProfileView: View {
 
                 StatCard(
                     title: "Cards Learned",
-                    value: "142",
+                    value: "\(totalStudied)",
                     unit: "total",
                     iconName: "brain.head.profile",
                     iconColor: NP.Colors.primary
@@ -139,7 +192,7 @@ struct ProfileView: View {
                         .foregroundColor(NP.Colors.textSecondary)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 32)
+                .padding(.vertical, NP.Spacing.xxxl)
             } else {
                 VStack(spacing: NP.Spacing.md) {
                     ForEach(finishedDecks) { deck in
@@ -192,12 +245,7 @@ struct StatCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(NP.Colors.surface)
         .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
-        .shadow(
-            color: NP.Shadow.cardColor,
-            radius: NP.Shadow.cardRadius,
-            x: NP.Shadow.cardX,
-            y: NP.Shadow.cardY
-        )
+        .npCardShadow()
     }
 }
 
@@ -232,16 +280,11 @@ struct FinishedDeckRow: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 24, height: 24)
-                .foregroundColor(Color(hex: "#30D158"))
+                .foregroundColor(NP.Colors.success)
         }
         .padding(NP.Spacing.lg)
         .background(NP.Colors.surface)
         .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
-        .shadow(
-            color: NP.Shadow.cardColor,
-            radius: NP.Shadow.cardRadius,
-            x: NP.Shadow.cardX,
-            y: NP.Shadow.cardY
-        )
+        .npCardShadow()
     }
 }

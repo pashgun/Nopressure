@@ -69,7 +69,7 @@ struct ReviewGeneratedCardsView: View {
                             .padding(NP.Spacing.lg)
                             .background(NP.Colors.surface)
                             .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
-                            .shadow(color: NP.Shadow.cardColor, radius: 8, x: 0, y: 4)
+                            .npCardShadow()
 
                         TextField("Description (optional)", text: $deckDescription)
                             .font(NP.Typography.body)
@@ -77,7 +77,7 @@ struct ReviewGeneratedCardsView: View {
                             .padding(NP.Spacing.lg)
                             .background(NP.Colors.surface)
                             .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
-                            .shadow(color: NP.Shadow.cardColor, radius: 8, x: 0, y: 4)
+                            .npCardShadow()
 
                         // Color Picker
                         VStack(alignment: .leading, spacing: NP.Spacing.md) {
@@ -121,7 +121,7 @@ struct ReviewGeneratedCardsView: View {
                                                 RoundedRectangle(cornerRadius: NP.Radius.sm, style: .continuous)
                                                     .fill(selectedIcon == icon ? NP.Colors.lightPurple : NP.Colors.surface)
                                             )
-                                            .shadow(color: NP.Shadow.cardColor, radius: 4, x: 0, y: 2)
+                                            .npSubtleShadow()
                                             .onTapGesture {
                                                 selectedIcon = icon
                                             }
@@ -165,12 +165,12 @@ struct ReviewGeneratedCardsView: View {
                         onCancel()
                     }
                     .font(NP.Typography.bodySemibold)
-                    .foregroundColor(Color(hex: "#FF453A"))
+                    .foregroundColor(NP.Colors.error)
                     .frame(maxWidth: .infinity)
                     .frame(height: 56)
                     .background(NP.Colors.surface)
                     .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
-                    .shadow(color: NP.Shadow.cardColor, radius: 8, x: 0, y: 4)
+                    .npCardShadow()
 
                     Button("Save Deck") {
                         onSave(
@@ -223,7 +223,7 @@ struct EditableCardView: View {
         .padding(NP.Spacing.lg)
         .background(NP.Colors.surface)
         .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
-        .shadow(color: NP.Shadow.cardColor, radius: 8, x: 0, y: 4)
+        .npCardShadow()
     }
 }
 

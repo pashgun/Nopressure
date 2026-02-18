@@ -187,9 +187,9 @@ struct AnswerButton: View {
         }
 
         if isCorrect {
-            return Color(hex: "#30D158").opacity(0.12)
+            return NP.Colors.success.opacity(0.12)
         } else if isSelected {
-            return Color(hex: "#FF453A").opacity(0.12)
+            return NP.Colors.error.opacity(0.12)
         } else {
             return NP.Colors.surface
         }
@@ -201,9 +201,9 @@ struct AnswerButton: View {
         }
 
         if isCorrect {
-            return Color(hex: "#30D158")
+            return NP.Colors.success
         } else if isSelected {
-            return Color(hex: "#FF453A")
+            return NP.Colors.error
         } else {
             return Color.black.opacity(0.08)
         }
@@ -221,10 +221,10 @@ struct AnswerButton: View {
                 if isAnswered {
                     if isCorrect {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(Color(hex: "#30D158"))
+                            .foregroundColor(NP.Colors.success)
                     } else if isSelected {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(Color(hex: "#FF453A"))
+                            .foregroundColor(NP.Colors.error)
                     }
                 }
             }
@@ -237,7 +237,7 @@ struct AnswerButton: View {
                             .strokeBorder(borderColor, lineWidth: 2)
                     )
             )
-            .shadow(color: NP.Shadow.cardColor, radius: 4, x: 0, y: 2)
+            .npSubtleShadow()
         }
         .disabled(isAnswered)
     }

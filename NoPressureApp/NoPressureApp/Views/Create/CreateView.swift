@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct CreateView: View {
+    /// Called with the created deck after save; parent should dismiss this view and navigate to DeckDetail.
+    var onDeckCreated: ((Deck) -> Void)?
+
     @State private var showingManualCreate = false
     @State private var showingCameraCapture = false
     @State private var showingPDFImport = false
@@ -64,16 +67,28 @@ struct CreateView: View {
             }
             .navigationBarHidden(true)
             .sheet(isPresented: $showingManualCreate) {
-                ManualCreateView()
+                ManualCreateView(onDeckCreated: { deck in
+                    onDeckCreated?(deck)
+                    showingManualCreate = false
+                })
             }
             .sheet(isPresented: $showingCameraCapture) {
-                CameraCaptureView()
+                CameraCaptureView(onDeckCreated: { deck in
+                    onDeckCreated?(deck)
+                    showingCameraCapture = false
+                })
             }
             .sheet(isPresented: $showingPDFImport) {
-                PDFImportView()
+                PDFImportView(onDeckCreated: { deck in
+                    onDeckCreated?(deck)
+                    showingPDFImport = false
+                })
             }
             .sheet(isPresented: $showingTextImport) {
-                TextImportView()
+                TextImportView(onDeckCreated: { deck in
+                    onDeckCreated?(deck)
+                    showingTextImport = false
+                })
             }
         }
     }
@@ -110,12 +125,7 @@ struct CreateOptionCard: View {
             .padding(NP.Spacing.xxl)
             .background(NP.Colors.surface)
             .clipShape(RoundedRectangle(cornerRadius: NP.Radius.lg, style: .continuous))
-            .shadow(
-                color: NP.Shadow.cardColor,
-                radius: NP.Shadow.cardRadius,
-                x: NP.Shadow.cardX,
-                y: NP.Shadow.cardY
-            )
+            .npCardShadow()
         }
     }
 }

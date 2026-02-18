@@ -3,13 +3,13 @@ import SwiftUI
 struct ExploreView: View {
     @State private var searchText = ""
 
-    let categories = [
-        ("Languages", "globe", "#5533FF"),
-        ("Science", "atom", "#FF7A4D"),
-        ("Math", "function", "#5533FF"),
-        ("History", "clock.fill", "#FF7A4D"),
-        ("Medicine", "cross.case.fill", "#5533FF"),
-        ("Tech", "desktopcomputer", "#FF7A4D")
+    let categories: [(String, String, Color)] = [
+        ("Languages", "globe", NP.Colors.primary),
+        ("Science", "atom", NP.Colors.accent),
+        ("Math", "function", NP.Colors.primary),
+        ("History", "clock.fill", NP.Colors.accent),
+        ("Medicine", "cross.case.fill", NP.Colors.primary),
+        ("Tech", "desktopcomputer", NP.Colors.accent)
     ]
 
     var body: some View {
@@ -27,12 +27,12 @@ struct ExploreView: View {
                             TextField("Search topics...", text: $searchText)
                                 .foregroundColor(NP.Colors.textPrimary)
                         }
-                        .padding(12)
+                        .padding(NP.Spacing.md)
                         .background(NP.Colors.surface)
                         .clipShape(RoundedRectangle(cornerRadius: NP.Radius.sm, style: .continuous))
-                        .shadow(color: NP.Shadow.cardColor, radius: 4, x: 0, y: 2)
+                        .npSubtleShadow()
                         .padding(.horizontal, NP.Spacing.xxl)
-                        .padding(.top, 20)
+                        .padding(.top, NP.Spacing.xl)
 
                         // Categories
                         VStack(alignment: .leading, spacing: NP.Spacing.lg) {
@@ -79,7 +79,7 @@ struct ExploreView: View {
 struct CategoryCard: View {
     let title: String
     let icon: String
-    let color: String
+    let color: Color
 
     var body: some View {
         Button {
@@ -88,7 +88,7 @@ struct CategoryCard: View {
             VStack(spacing: NP.Spacing.md) {
                 Image(systemName: icon)
                     .font(NP.Typography.IconSize.xl)
-                    .foregroundColor(Color(hex: color))
+                    .foregroundColor(color)
 
                 Text(title)
                     .font(NP.Typography.bodySemibold)
@@ -98,12 +98,7 @@ struct CategoryCard: View {
             .padding(.vertical, NP.Spacing.xxl)
             .background(NP.Colors.surface)
             .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
-            .shadow(
-                color: NP.Shadow.cardColor,
-                radius: NP.Shadow.cardRadius,
-                x: NP.Shadow.cardX,
-                y: NP.Shadow.cardY
-            )
+            .npCardShadow()
         }
     }
 }

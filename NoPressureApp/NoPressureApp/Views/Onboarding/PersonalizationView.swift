@@ -50,7 +50,7 @@ struct PersonalizationView: View {
                             .foregroundColor(NP.Colors.textSecondary)
                     }
                 }
-                .padding(.top, 80)
+                .padding(.top, 80) // Intentional large top margin
 
                 Spacer()
 
@@ -61,14 +61,14 @@ struct PersonalizationView: View {
                         TextField("Your name", text: $userName)
                             .font(NP.Typography.bodySemibold)
                             .foregroundColor(NP.Colors.textPrimary)
-                            .padding(20)
+                            .padding(NP.Spacing.xl)
                             .background(NP.Colors.surface)
                             .clipShape(RoundedRectangle(cornerRadius: NP.Radius.lg, style: .continuous))
-                            .shadow(color: NP.Shadow.cardColor, radius: 8, x: 0, y: 4)
+                            .npCardShadow()
                             .autocapitalization(.words)
                             .disableAutocorrection(true)
                     }
-                    .padding(.horizontal, 32)
+                    .padding(.horizontal, NP.Spacing.xxxl)
 
                 } else if currentStep == 1 {
                     // Goal Selection
@@ -98,16 +98,16 @@ struct PersonalizationView: View {
                                             .foregroundColor(NP.Colors.primary)
                                     }
                                 }
-                                .padding(20)
+                                .padding(NP.Spacing.xl)
                                 .background(
                                     selectedGoal == goal ? NP.Colors.lightPurple : NP.Colors.surface
                                 )
                                 .clipShape(RoundedRectangle(cornerRadius: NP.Radius.lg, style: .continuous))
-                                .shadow(color: NP.Shadow.cardColor, radius: 8, x: 0, y: 4)
+                                .npCardShadow()
                             }
                         }
                     }
-                    .padding(.horizontal, 32)
+                    .padding(.horizontal, NP.Spacing.xxxl)
 
                 } else if currentStep == 2 {
                     // Time Selection
@@ -143,16 +143,16 @@ struct PersonalizationView: View {
                                             .foregroundColor(NP.Colors.primary)
                                     }
                                 }
-                                .padding(20)
+                                .padding(NP.Spacing.xl)
                                 .background(
                                     selectedMinutes == minutes ? NP.Colors.lightPurple : NP.Colors.surface
                                 )
                                 .clipShape(RoundedRectangle(cornerRadius: NP.Radius.lg, style: .continuous))
-                                .shadow(color: NP.Shadow.cardColor, radius: 8, x: 0, y: 4)
+                                .npCardShadow()
                             }
                         }
                     }
-                    .padding(.horizontal, 32)
+                    .padding(.horizontal, NP.Spacing.xxxl)
 
                 } else {
                     // Interests Selection
@@ -180,8 +180,8 @@ struct PersonalizationView: View {
                                             .foregroundColor(.white)
                                     }
                                 }
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 14)
+                                .padding(.horizontal, NP.Spacing.xl)
+                                .padding(.vertical, NP.Spacing.md)
                                 .frame(maxWidth: .infinity)
                                 .background(
                                     selectedInterests.contains(interest) ? NP.Colors.primary : NP.Colors.surface
@@ -189,12 +189,12 @@ struct PersonalizationView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
                                 .shadow(
                                     color: selectedInterests.contains(interest) ? Color.clear : NP.Shadow.cardColor,
-                                    radius: 4, x: 0, y: 2
+                                    radius: NP.Shadow.subtleRadius, x: 0, y: NP.Shadow.subtleY
                                 )
                             }
                         }
                     }
-                    .padding(.horizontal, 32)
+                    .padding(.horizontal, NP.Spacing.xxxl)
                 }
 
                 Spacer()
@@ -221,14 +221,9 @@ struct PersonalizationView: View {
                     }
                 } label: {
                     Text(currentStep < 3 ? "Continue" : "Get Started")
-                        .font(NP.Typography.bodySemibold)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(NP.Colors.primary)
-                        .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
+                        .npPrimaryButton()
                 }
-                .padding(.horizontal, 32)
+                .padding(.horizontal, NP.Spacing.xxxl)
                 .disabled(
                     (currentStep == 0 && userName.isEmpty) ||
                     (currentStep == 1 && selectedGoal == nil) ||

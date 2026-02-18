@@ -7,6 +7,9 @@ struct PDFImportView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
+    /// Called with the created deck after save; parent can then navigate to DeckDetail.
+    var onDeckCreated: ((Deck) -> Void)?
+
     @State private var selectedPDF: URL?
     @State private var showingDocumentPicker = false
     @State private var isProcessing = false
@@ -133,7 +136,7 @@ struct PDFImportView: View {
                         if let error = errorMessage {
                             Text(error)
                                 .font(NP.Typography.caption1)
-                                .foregroundColor(Color(hex: "#FF453A"))
+                                .foregroundColor(NP.Colors.error)
                                 .padding(.horizontal, NP.Spacing.xxl)
                                 .multilineTextAlignment(.center)
                         }
@@ -185,7 +188,7 @@ struct PDFImportView: View {
             }
             .navigationTitle("PDF Import")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
+            .toolbar(content: {
                 ToolbarItem(placement: .navigationBarLeading) {
                     if !showingReview && !isProcessing {
                         Button("Cancel") {
@@ -194,7 +197,7 @@ struct PDFImportView: View {
                         .foregroundColor(NP.Colors.primary)
                     }
                 }
-            }
+            })
             .sheet(isPresented: $showingDocumentPicker) {
                 DocumentPicker(selectedURL: $selectedPDF)
             }
@@ -278,6 +281,7 @@ struct PDFImportView: View {
 
         do {
             try modelContext.save()
+            onDeckCreated?(deck)
             dismiss()
         } catch {
             showSaveError = true
@@ -326,5 +330,5 @@ struct DocumentPicker: UIViewControllerRepresentable {
 }
 
 #Preview {
-    PDFImportView()
+    PDFImportView(onDeckCreated: nil)
 }

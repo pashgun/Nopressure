@@ -48,12 +48,12 @@ struct LibraryView: View {
                         TextField("Search decks...", text: $searchText)
                             .foregroundColor(NP.Colors.textPrimary)
                     }
-                    .padding(12)
+                    .padding(NP.Spacing.md)
                     .background(NP.Colors.surface)
                     .clipShape(RoundedRectangle(cornerRadius: NP.Radius.sm, style: .continuous))
-                    .shadow(color: NP.Shadow.cardColor, radius: 4, x: 0, y: 2)
+                    .npSubtleShadow()
                     .padding(.horizontal, NP.Spacing.xxl)
-                    .padding(.top, 20)
+                    .padding(.top, NP.Spacing.xl)
 
                     // Filter Pills
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -112,7 +112,12 @@ struct LibraryView: View {
                         ScrollView {
                             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: NP.Spacing.lg) {
                                 ForEach(filteredDecks) { deck in
-                                    DeckGridCard(deck: deck)
+                                    NavigationLink {
+                                        DeckDetailView(deck: deck)
+                                    } label: {
+                                        DeckGridCard(deck: deck)
+                                    }
+                                    .buttonStyle(.plain)
                                 }
                             }
                             .padding(NP.Spacing.xxl)

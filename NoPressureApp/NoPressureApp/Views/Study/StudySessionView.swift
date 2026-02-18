@@ -11,6 +11,7 @@ struct StudySessionView: View {
     @State private var currentCardIndex = 0
     @State private var isFlipped = false
     @State private var cardsReviewed = 0
+    @State private var correctCount = 0
     @State private var showingComplete = false
     @State private var sessionStartTime = Date()
     @State private var studyMode: StudyMode = .flashcard
@@ -31,6 +32,40 @@ struct StudySessionView: View {
         return dueCards[currentCardIndex]
     }
 
+    /// Due cards count after session (may have decreased after reviews).
+    var remainingDueCount: Int {
+        deck.cards.filter { card in
+            guard let nextReview = card.fsrsData?.nextReview else { return true }
+            return nextReview <= Date()
+        }.count
+    }
+
+    private var currentStreak: Int {
+        var streak = 0
+        var checkDate = Calendar.current.startOfDay(for: Date())
+        let allCards = deck.cards
+
+        while true {
+            let nextDay = Calendar.current.date(byAdding: .day, value: 1, to: checkDate)!
+            let hasActivity = allCards.contains { card in
+                guard let lastReview = card.fsrsData?.lastReview else { return false }
+                return lastReview >= checkDate && lastReview < nextDay
+            }
+
+            if hasActivity {
+                streak += 1
+                guard let previousDay = Calendar.current.date(byAdding: .day, value: -1, to: checkDate) else { break }
+                checkDate = previousDay
+            } else if streak == 0 {
+                guard let previousDay = Calendar.current.date(byAdding: .day, value: -1, to: checkDate) else { break }
+                checkDate = previousDay
+            } else {
+                break
+            }
+        }
+        return streak
+    }
+
     var body: some View {
         ZStack {
             MeshBackground()
@@ -43,10 +78,10 @@ struct StudySessionView: View {
                     } label: {
                         Image(systemName: "xmark")
                             .foregroundColor(NP.Colors.textPrimary)
-                            .padding(12)
+                            .padding(NP.Spacing.md)
                             .background(NP.Colors.surface)
                             .clipShape(RoundedRectangle(cornerRadius: NP.Radius.sm, style: .continuous))
-                            .shadow(color: NP.Shadow.cardColor, radius: 4, x: 0, y: 2)
+                            .npSubtleShadow()
                     }
 
                     Spacer()
@@ -54,11 +89,11 @@ struct StudySessionView: View {
                     Text("\(currentCardIndex + 1) / \(dueCards.count)")
                         .font(NP.Typography.bodySemibold)
                         .foregroundColor(NP.Colors.textPrimary)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 10)
+                        .padding(.horizontal, NP.Spacing.xl)
+                        .padding(.vertical, NP.Spacing.md)
                         .background(NP.Colors.surface)
                         .clipShape(RoundedRectangle(cornerRadius: NP.Radius.sm, style: .continuous))
-                        .shadow(color: NP.Shadow.cardColor, radius: 4, x: 0, y: 2)
+                        .npSubtleShadow()
 
                     Spacer()
 
@@ -66,7 +101,7 @@ struct StudySessionView: View {
                         .frame(width: 48, height: 48)
                 }
                 .padding(.horizontal, NP.Spacing.xxl)
-                .padding(.top, 20)
+                .padding(.top, NP.Spacing.xl)
 
                 // Study Mode Selector
                 StudyModeSelector(selectedMode: $studyMode)
@@ -86,8 +121,14 @@ struct StudySessionView: View {
         .navigationBarHidden(true)
         .sheet(isPresented: $showingComplete) {
             SessionCompleteView(
+                deck: deck,
                 cardsReviewed: cardsReviewed,
-                onDismiss: { dismiss() }
+                correctCount: studyMode == .flashcard ? correctCount : nil,
+                sessionDuration: Date().timeIntervalSince(sessionStartTime),
+                currentStreak: currentStreak,
+                remainingDueCount: remainingDueCount,
+                onDismiss: { dismiss() },
+                onContinue: remainingDueCount > 0 ? { showingComplete = false } : nil
             )
         }
         .onAppear {
@@ -157,19 +198,19 @@ struct StudySessionView: View {
             // Rating Buttons (show only when flipped)
             if isFlipped {
                 HStack(spacing: NP.Spacing.md) {
-                    RatingButton(title: "Again", color: "#FF375F") {
+                    RatingButton(title: "Again", color: NP.Colors.ratingAgain) {
                         rateCard(rating: .again)
                     }
 
-                    RatingButton(title: "Hard", color: "#FF9F0A") {
+                    RatingButton(title: "Hard", color: NP.Colors.ratingHard) {
                         rateCard(rating: .hard)
                     }
 
-                    RatingButton(title: "Good", color: "#5533FF") {
+                    RatingButton(title: "Good", color: NP.Colors.ratingGood) {
                         rateCard(rating: .good)
                     }
 
-                    RatingButton(title: "Easy", color: "#30D158") {
+                    RatingButton(title: "Easy", color: NP.Colors.ratingEasy) {
                         rateCard(rating: .easy)
                     }
                 }
@@ -221,6 +262,9 @@ struct StudySessionView: View {
         }
 
         cardsReviewed += 1
+        if rating == .good || rating == .easy {
+            correctCount += 1
+        }
 
         withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
             isFlipped = false
@@ -305,7 +349,7 @@ struct CardSide: View {
 
 struct RatingButton: View {
     let title: String
-    let color: String
+    let color: Color
     let action: () -> Void
 
     var body: some View {
@@ -315,15 +359,38 @@ struct RatingButton: View {
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, NP.Spacing.lg)
-                .background(Color(hex: color))
+                .background(color)
                 .clipShape(RoundedRectangle(cornerRadius: NP.Radius.sm, style: .continuous))
         }
     }
 }
 
 struct SessionCompleteView: View {
+    let deck: Deck
     let cardsReviewed: Int
+    /// Non-nil only in flashcard mode where we track Good/Easy as correct.
+    let correctCount: Int?
+    let sessionDuration: TimeInterval
+    let currentStreak: Int
+    let remainingDueCount: Int
     let onDismiss: () -> Void
+    let onContinue: (() -> Void)?
+
+    private var correctPercent: Int? {
+        guard let correct = correctCount, cardsReviewed > 0 else { return nil }
+        return (correct * 100) / cardsReviewed
+    }
+
+    private var sessionMinutes: Int {
+        Int(sessionDuration / 60)
+    }
+
+    private var sessionTimeText: String {
+        if sessionMinutes >= 1 {
+            return "\(sessionMinutes) min"
+        }
+        return "\(Int(sessionDuration)) sec"
+    }
 
     var body: some View {
         ZStack {
@@ -346,7 +413,7 @@ struct SessionCompleteView: View {
                         .foregroundColor(NP.Colors.primary)
                 }
 
-                VStack(spacing: NP.Spacing.md) {
+                VStack(spacing: NP.Spacing.lg) {
                     Text("Great job!")
                         .font(NP.Typography.largeTitle)
                         .foregroundColor(NP.Colors.textBlack)
@@ -354,25 +421,72 @@ struct SessionCompleteView: View {
                     Text("You reviewed \(cardsReviewed) cards")
                         .font(NP.Typography.body)
                         .foregroundColor(NP.Colors.textSecondary)
+
+                    // Stats row
+                    HStack(spacing: NP.Spacing.xl) {
+                        if let percent = correctPercent {
+                            statChip(title: "Correct", value: "\(percent)%")
+                        }
+                        statChip(title: "Time", value: sessionTimeText)
+                        if currentStreak > 0 {
+                            statChip(title: "Streak", value: "\(currentStreak) day\(currentStreak == 1 ? "" : "s")")
+                        }
+                    }
+                    .padding(.top, NP.Spacing.sm)
                 }
 
                 Spacer()
 
-                Button {
-                    onDismiss()
-                } label: {
-                    Text("Done")
-                        .font(NP.Typography.bodySemibold)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(NP.Colors.primary)
-                        .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
+                VStack(spacing: NP.Spacing.md) {
+                    if remainingDueCount > 0, let onContinue = onContinue {
+                        Button {
+                            onContinue()
+                        } label: {
+                            HStack(spacing: NP.Spacing.sm) {
+                                Image(systemName: "play.fill")
+                                Text("Continue Studying (\(remainingDueCount) left)")
+                            }
+                            .font(NP.Typography.bodySemibold)
+                            .foregroundColor(NP.Colors.primary)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 56)
+                            .background(NP.Colors.lightPurple)
+                            .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
+                        }
+                    }
+
+                    Button {
+                        onDismiss()
+                    } label: {
+                        Text("Done")
+                            .font(NP.Typography.bodySemibold)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 56)
+                            .background(NP.Colors.primary)
+                            .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
+                    }
                 }
-                .padding(.horizontal, 32)
+                .padding(.horizontal, NP.Spacing.xxxl)
 
                 Spacer().frame(height: 60)
             }
         }
+    }
+
+    private func statChip(title: String, value: String) -> some View {
+        VStack(spacing: NP.Spacing.xs) {
+            Text(value)
+                .font(NP.Typography.subheadlineSemibold)
+                .foregroundColor(NP.Colors.textBlack)
+            Text(title)
+                .font(NP.Typography.caption2)
+                .foregroundColor(NP.Colors.textSecondary)
+        }
+        .padding(.horizontal, NP.Spacing.lg)
+        .padding(.vertical, NP.Spacing.md)
+        .background(NP.Colors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: NP.Radius.sm, style: .continuous))
+        .npSubtleShadow()
     }
 }

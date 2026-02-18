@@ -61,7 +61,7 @@ struct SignUpView: View {
                         signIn(with: .email)
                     }
                 }
-                .padding(.horizontal, 32)
+                .padding(.horizontal, NP.Spacing.xxxl)
 
                 Spacer()
 
@@ -70,7 +70,7 @@ struct SignUpView: View {
                     .font(NP.Typography.footnote)
                     .foregroundColor(NP.Colors.textSecondary)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 40)
+                    .padding(.horizontal, NP.Spacing.xxxl)
                     .padding(.bottom, 60)
             }
         }
@@ -116,17 +116,12 @@ private struct AuthButton: View {
                 Spacer()
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 56)
-            .padding(.horizontal, 20)
+            .frame(height: NP.Size.buttonHeight)
+            .padding(.horizontal, NP.Spacing.xl)
         }
         .background(NP.Colors.surface)
         .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
-        .shadow(
-            color: NP.Shadow.cardColor,
-            radius: NP.Shadow.cardRadius,
-            x: NP.Shadow.cardX,
-            y: NP.Shadow.cardY
-        )
+        .npCardShadow()
         .disabled(isLoading)
         .opacity(isLoading ? 0.6 : 1.0)
     }

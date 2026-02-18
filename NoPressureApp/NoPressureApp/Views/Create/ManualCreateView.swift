@@ -5,6 +5,9 @@ struct ManualCreateView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
+    /// Called with the created deck after successful save; parent can then navigate to DeckDetail.
+    var onDeckCreated: ((Deck) -> Void)?
+
     @State private var deckName = ""
     @State private var deckDescription = ""
     @State private var selectedColor = "#5533FF"
@@ -36,134 +39,8 @@ struct ManualCreateView: View {
 
                 ScrollView {
                     VStack(spacing: NP.Spacing.xxl) {
-                        // Deck Details Section
-                        VStack(alignment: .leading, spacing: NP.Spacing.lg) {
-                            Text("Deck Details")
-                                .font(NP.Typography.title2)
-                                .foregroundColor(NP.Colors.textBlack)
-
-                            // Deck Name
-                            TextField("Deck name", text: $deckName)
-                                .font(NP.Typography.bodySemibold)
-                                .foregroundColor(NP.Colors.textPrimary)
-                                .padding(NP.Spacing.lg)
-                                .background(NP.Colors.surface)
-                                .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
-                                .shadow(color: NP.Shadow.cardColor, radius: 8, x: 0, y: 4)
-
-                            // Deck Description
-                            TextField("Description (optional)", text: $deckDescription)
-                                .font(NP.Typography.body)
-                                .foregroundColor(NP.Colors.textPrimary)
-                                .padding(NP.Spacing.lg)
-                                .background(NP.Colors.surface)
-                                .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
-                                .shadow(color: NP.Shadow.cardColor, radius: 8, x: 0, y: 4)
-
-                            // Color Picker
-                            VStack(alignment: .leading, spacing: NP.Spacing.md) {
-                                Text("Color")
-                                    .font(NP.Typography.subheadlineSemibold)
-                                    .foregroundColor(NP.Colors.textSecondary)
-
-                                ScrollView(.horizontal, showsIndicators: false) {
-                                    HStack(spacing: NP.Spacing.md) {
-                                        ForEach(availableColors, id: \.self) { color in
-                                            Circle()
-                                                .fill(Color(hex: color))
-                                                .frame(width: 44, height: 44)
-                                                .overlay(
-                                                    Circle()
-                                                        .strokeBorder(NP.Colors.primary, lineWidth: 3)
-                                                        .opacity(selectedColor == color ? 1 : 0)
-                                                )
-                                                .onTapGesture {
-                                                    selectedColor = color
-                                                }
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Icon Picker
-                            VStack(alignment: .leading, spacing: NP.Spacing.md) {
-                                Text("Icon")
-                                    .font(NP.Typography.subheadlineSemibold)
-                                    .foregroundColor(NP.Colors.textSecondary)
-
-                                ScrollView(.horizontal, showsIndicators: false) {
-                                    HStack(spacing: NP.Spacing.md) {
-                                        ForEach(availableIcons, id: \.self) { icon in
-                                            Image(systemName: icon)
-                                                .font(NP.Typography.IconSize.md)
-                                                .foregroundColor(selectedIcon == icon ? NP.Colors.primary : NP.Colors.textSecondary)
-                                                .frame(width: 44, height: 44)
-                                                .background(
-                                                    RoundedRectangle(cornerRadius: NP.Radius.sm, style: .continuous)
-                                                        .fill(selectedIcon == icon ? NP.Colors.lightPurple : NP.Colors.surface)
-                                                )
-                                                .shadow(color: NP.Shadow.cardColor, radius: 4, x: 0, y: 2)
-                                                .onTapGesture {
-                                                    selectedIcon = icon
-                                                }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        .padding(.horizontal, NP.Spacing.xxl)
-                        .padding(.top, NP.Spacing.xl)
-
-                        // Cards Section
-                        VStack(alignment: .leading, spacing: NP.Spacing.lg) {
-                            HStack {
-                                Text("Cards")
-                                    .font(NP.Typography.title2)
-                                    .foregroundColor(NP.Colors.textBlack)
-
-                                Spacer()
-
-                                Text("\(cards.count)")
-                                    .font(NP.Typography.subheadlineSemibold)
-                                    .foregroundColor(NP.Colors.textSecondary)
-                            }
-
-                            ForEach(cards.indices, id: \.self) { index in
-                                CardInputView(
-                                    card: $cards[index],
-                                    index: index + 1,
-                                    onDelete: {
-                                        withAnimation {
-                                            cards.remove(at: index)
-                                        }
-                                    }
-                                )
-                            }
-
-                            // Add Card Button
-                            Button {
-                                withAnimation {
-                                    cards.append(CardDraft())
-                                }
-                            } label: {
-                                HStack(spacing: NP.Spacing.md) {
-                                    Image(systemName: "plus.circle.fill")
-                                        .foregroundColor(Color(hex: selectedColor))
-
-                                    Text("Add Card")
-                                        .font(NP.Typography.bodySemibold)
-                                        .foregroundColor(NP.Colors.textPrimary)
-
-                                    Spacer()
-                                }
-                                .padding(NP.Spacing.xl)
-                                .background(NP.Colors.surface)
-                                .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
-                                .shadow(color: NP.Shadow.cardColor, radius: 8, x: 0, y: 4)
-                            }
-                        }
-                        .padding(.horizontal, NP.Spacing.xxl)
-
+                        deckDetailsSection
+                        cardsSection
                         Spacer(minLength: 100)
                     }
                 }
@@ -177,7 +54,8 @@ struct ManualCreateView: View {
                     }
                     .foregroundColor(NP.Colors.primary)
                 }
-
+            }
+            .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
                         saveDeck()
@@ -192,6 +70,131 @@ struct ManualCreateView: View {
         } message: {
             Text(errorMessage)
         }
+    }
+
+    private var deckDetailsSection: some View {
+        VStack(alignment: .leading, spacing: NP.Spacing.lg) {
+            Text("Deck Details")
+                .font(NP.Typography.title2)
+                .foregroundColor(NP.Colors.textBlack)
+
+            TextField("Deck name", text: $deckName)
+                .font(NP.Typography.bodySemibold)
+                .foregroundColor(NP.Colors.textPrimary)
+                .padding(NP.Spacing.lg)
+                .background(NP.Colors.surface)
+                .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
+                .npCardShadow()
+
+            TextField("Description (optional)", text: $deckDescription)
+                .font(NP.Typography.body)
+                .foregroundColor(NP.Colors.textPrimary)
+                .padding(NP.Spacing.lg)
+                .background(NP.Colors.surface)
+                .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
+                .npCardShadow()
+
+            VStack(alignment: .leading, spacing: NP.Spacing.md) {
+                Text("Color")
+                    .font(NP.Typography.subheadlineSemibold)
+                    .foregroundColor(NP.Colors.textSecondary)
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: NP.Spacing.md) {
+                        ForEach(availableColors, id: \.self) { color in
+                            Circle()
+                                .fill(Color(hex: color))
+                                .frame(width: 44, height: 44)
+                                .overlay(
+                                    Circle()
+                                        .strokeBorder(NP.Colors.primary, lineWidth: 3)
+                                        .opacity(selectedColor == color ? 1 : 0)
+                                )
+                                .onTapGesture {
+                                    selectedColor = color
+                                }
+                        }
+                    }
+                }
+            }
+
+            VStack(alignment: .leading, spacing: NP.Spacing.md) {
+                Text("Icon")
+                    .font(NP.Typography.subheadlineSemibold)
+                    .foregroundColor(NP.Colors.textSecondary)
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: NP.Spacing.md) {
+                        ForEach(availableIcons, id: \.self) { icon in
+                            Image(systemName: icon)
+                                .font(NP.Typography.IconSize.md)
+                                .foregroundColor(selectedIcon == icon ? NP.Colors.primary : NP.Colors.textSecondary)
+                                .frame(width: 44, height: 44)
+                                .background(
+                                    RoundedRectangle(cornerRadius: NP.Radius.sm, style: .continuous)
+                                        .fill(selectedIcon == icon ? NP.Colors.lightPurple : NP.Colors.surface)
+                                )
+                                .npSubtleShadow()
+                                .onTapGesture {
+                                    selectedIcon = icon
+                                }
+                        }
+                    }
+                }
+            }
+        }
+        .padding(.horizontal, NP.Spacing.xxl)
+        .padding(.top, NP.Spacing.xl)
+    }
+
+    private var cardsSection: some View {
+        VStack(alignment: .leading, spacing: NP.Spacing.lg) {
+            HStack {
+                Text("Cards")
+                    .font(NP.Typography.title2)
+                    .foregroundColor(NP.Colors.textBlack)
+
+                Spacer()
+
+                Text("\(cards.count)")
+                    .font(NP.Typography.subheadlineSemibold)
+                    .foregroundColor(NP.Colors.textSecondary)
+            }
+
+            ForEach(Array(cards.enumerated()), id: \.element.id) { offset, _ in
+                CardInputView(
+                    card: $cards[offset],
+                    index: offset + 1,
+                    onDelete: {
+                        withAnimation {
+                            _ = cards.remove(at: offset)
+                        }
+                    }
+                )
+            }
+
+            Button {
+                withAnimation {
+                    cards.append(CardDraft())
+                }
+            } label: {
+                HStack(spacing: NP.Spacing.md) {
+                    Image(systemName: "plus.circle.fill")
+                        .foregroundColor(Color(hex: selectedColor))
+
+                    Text("Add Card")
+                        .font(NP.Typography.bodySemibold)
+                        .foregroundColor(NP.Colors.textPrimary)
+
+                    Spacer()
+                }
+                .padding(NP.Spacing.xl)
+                .background(NP.Colors.surface)
+                .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
+                .npCardShadow()
+            }
+        }
+        .padding(.horizontal, NP.Spacing.xxl)
     }
 
     private var canSave: Bool {
@@ -219,6 +222,7 @@ struct ManualCreateView: View {
 
         do {
             try modelContext.save()
+            onDeckCreated?(deck)
             dismiss()
         } catch {
             showError = true
@@ -256,7 +260,7 @@ struct CardInputView: View {
                         onDelete()
                     } label: {
                         Image(systemName: "trash.fill")
-                            .foregroundColor(Color(hex: "#FF453A"))
+                            .foregroundColor(NP.Colors.error)
                     }
                 }
             }
@@ -284,12 +288,12 @@ struct CardInputView: View {
         .padding(NP.Spacing.lg)
         .background(NP.Colors.surface)
         .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
-        .shadow(color: NP.Shadow.cardColor, radius: 8, x: 0, y: 4)
+        .npCardShadow()
     }
 }
 
 // MARK: - Preview
 
 #Preview {
-    ManualCreateView()
+    ManualCreateView(onDeckCreated: nil)
 }

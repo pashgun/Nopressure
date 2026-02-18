@@ -8,6 +8,7 @@ actor AIGenerationService {
 
     enum AIError: LocalizedError {
         case invalidURL
+        case missingAPIKey
         case networkError(Error)
         case invalidResponse
         case jsonParsingError(Error)
@@ -17,6 +18,8 @@ actor AIGenerationService {
             switch self {
             case .invalidURL:
                 return "Invalid API URL"
+            case .missingAPIKey:
+                return "AI generation requires an API key. Configure OPENROUTER_API_KEY in Config.xcconfig."
             case .networkError(let error):
                 return "Network error: \(error.localizedDescription)"
             case .invalidResponse:
@@ -33,6 +36,10 @@ actor AIGenerationService {
     /// - Parameter text: Source text to convert into flashcards
     /// - Returns: Array of generated flashcards
     func generateFlashcards(from text: String) async throws -> [GeneratedFlashcard] {
+        guard let apiKey, !apiKey.isEmpty else {
+            throw AIError.missingAPIKey
+        }
+
         guard let url = URL(string: baseURL) else {
             throw AIError.invalidURL
         }

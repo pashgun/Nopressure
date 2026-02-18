@@ -74,7 +74,7 @@ struct ModeButton: View {
                     .fill(isSelected ? NP.Colors.primary : NP.Colors.surface)
                     .shadow(
                         color: isSelected ? Color.clear : NP.Shadow.cardColor,
-                        radius: 4, x: 0, y: 2
+                        radius: NP.Shadow.subtleRadius, x: 0, y: NP.Shadow.subtleY
                     )
             )
         }

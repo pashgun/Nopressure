@@ -113,7 +113,7 @@ struct WriteModeView: View {
                     VStack(spacing: NP.Spacing.md) {
                         HStack(spacing: NP.Spacing.sm) {
                             Image(systemName: isCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
-                                .foregroundColor(isCorrect ? Color(hex: "#30D158") : Color(hex: "#FF453A"))
+                                .foregroundColor(isCorrect ? NP.Colors.success : NP.Colors.error)
 
                             Text(isCorrect ? "Correct!" : "Not quite")
                                 .font(NP.Typography.bodySemibold)
@@ -128,7 +128,7 @@ struct WriteModeView: View {
 
                                 Text(card.back)
                                     .font(NP.Typography.bodySemibold)
-                                    .foregroundColor(Color(hex: "#30D158"))
+                                    .foregroundColor(NP.Colors.success)
                                     .multilineTextAlignment(.center)
                             }
                             .padding(.top, NP.Spacing.sm)
@@ -138,7 +138,7 @@ struct WriteModeView: View {
                     .frame(maxWidth: .infinity)
                     .background(NP.Colors.surface)
                     .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
-                    .shadow(color: NP.Shadow.cardColor, radius: 8, x: 0, y: 4)
+                    .npCardShadow()
                 }
             }
             .padding(.horizontal, NP.Spacing.xxl)
@@ -185,14 +185,14 @@ struct WriteModeView: View {
         if !isAnswered {
             return NP.Colors.surface
         }
-        return isCorrect ? Color(hex: "#30D158").opacity(0.12) : Color(hex: "#FF453A").opacity(0.12)
+        return isCorrect ? NP.Colors.success.opacity(0.12) : NP.Colors.error.opacity(0.12)
     }
 
     private var answerBorderColor: Color {
         if !isAnswered {
             return Color.black.opacity(0.08)
         }
-        return isCorrect ? Color(hex: "#30D158") : Color(hex: "#FF453A")
+        return isCorrect ? NP.Colors.success : NP.Colors.error
     }
 
     private func getHint() -> String {

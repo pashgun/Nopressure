@@ -37,82 +37,129 @@ enum NP {
 
         /// Tab bar background — white with slight opacity
         static let tabBarBackground = Color.white
+
+        /// Error / destructive red — #FF453A
+        static let error = Color(hex: "#FF453A")
+
+        /// Success / correct green — #30D158
+        static let success = Color(hex: "#30D158")
+
+        // MARK: Rating Colors (Study Session)
+
+        /// Again — #FF375F
+        static let ratingAgain = Color(hex: "#FF375F")
+
+        /// Hard — #FF9F0A
+        static let ratingHard = Color(hex: "#FF9F0A")
+
+        /// Good — #5533FF (same as primary)
+        static let ratingGood = Color(hex: "#5533FF")
+
+        /// Easy — #30D158 (same as success)
+        static let ratingEasy = Color(hex: "#30D158")
     }
 
-    // MARK: - Typography (SF Pro — iOS system font)
-    // All sizes, weights, and line heights from Figma
+    // MARK: - Font Names
+    // Manrope (primary), SF Pro (system fallback), IBM Plex Mono (monospace)
+
+    enum FontName {
+        static let manrope = "Manrope"
+        static let ibmPlexMono = "IBMPlexMono"
+    }
+
+    // MARK: - Typography
+    // Manrope variable font: weight axis 200–800
+    // iOS maps Font.custom + weight via the variable font's wght axis
 
     enum Typography {
-        // Large Title — 34px Bold, line 41, spacing 0.4
-        static let largeTitle = Font.system(size: 34, weight: .bold)
+        // — Manrope helpers —
+        // Variable font: we set size and use .weight() modifier for the axis
+        private static func manrope(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
+            Font.custom(FontName.manrope, size: size).weight(weight)
+        }
 
-        // Title 1 — 28px Bold, line 34, spacing 0.38
-        static let title1 = Font.system(size: 28, weight: .bold)
+        private static func mono(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
+            Font.custom(FontName.ibmPlexMono, size: size).weight(weight)
+        }
 
-        // Title 2 — 22px Bold, line 28, spacing -0.26
-        static let title2 = Font.system(size: 22, weight: .bold)
+        // Large Title — 34px Bold
+        static let largeTitle = manrope(34, weight: .bold)
 
-        // Title 3 — 20px Semibold, line 25, spacing -0.45
-        static let title3 = Font.system(size: 20, weight: .semibold)
+        // Title 1 — 28px Bold
+        static let title1 = manrope(28, weight: .bold)
 
-        // Body — 17px Regular, line 22, spacing -0.43
-        static let body = Font.system(size: 17, weight: .regular)
+        // Title 2 — 22px Bold
+        static let title2 = manrope(22, weight: .bold)
 
-        // Body Semibold — 17px Semibold, line 22
-        static let bodySemibold = Font.system(size: 17, weight: .semibold)
+        // Title 3 — 20px Semibold
+        static let title3 = manrope(20, weight: .semibold)
 
-        // Headline — 17px Semibold, line 22
-        static let headline = Font.system(size: 17, weight: .semibold)
+        // Body — 17px Regular
+        static let body = manrope(17)
 
-        // Callout — 16px Regular, line 21
-        static let callout = Font.system(size: 16, weight: .regular)
+        // Body Semibold — 17px Semibold
+        static let bodySemibold = manrope(17, weight: .semibold)
+
+        // Headline — 17px Semibold
+        static let headline = manrope(17, weight: .semibold)
+
+        // Callout — 16px Regular
+        static let callout = manrope(16)
 
         // Callout Semibold — 16px Semibold
-        static let calloutSemibold = Font.system(size: 16, weight: .semibold)
+        static let calloutSemibold = manrope(16, weight: .semibold)
 
-        // Subheadline — 15px Regular, line 20
-        static let subheadline = Font.system(size: 15, weight: .regular)
+        // Subheadline — 15px Regular
+        static let subheadline = manrope(15)
 
         // Subheadline Semibold — 15px Semibold
-        static let subheadlineSemibold = Font.system(size: 15, weight: .semibold)
+        static let subheadlineSemibold = manrope(15, weight: .semibold)
 
         // Footnote — 13px Regular
-        static let footnote = Font.system(size: 13, weight: .regular)
+        static let footnote = manrope(13)
 
         // Footnote Semibold — 13px Semibold
-        static let footnoteSemibold = Font.system(size: 13, weight: .semibold)
+        static let footnoteSemibold = manrope(13, weight: .semibold)
 
         // Caption 1 — 12px Regular
-        static let caption1 = Font.system(size: 12, weight: .regular)
+        static let caption1 = manrope(12)
 
         // Caption 1 Medium — 12px Medium
-        static let caption1Medium = Font.system(size: 12, weight: .medium)
+        static let caption1Medium = manrope(12, weight: .medium)
 
         // Caption 1 Semibold — 12px Semibold
-        static let caption1Semibold = Font.system(size: 12, weight: .semibold)
+        static let caption1Semibold = manrope(12, weight: .semibold)
 
         // Caption 2 — 11px Regular
-        static let caption2 = Font.system(size: 11, weight: .regular)
+        static let caption2 = manrope(11)
 
         // Caption 2 Semibold — 11px Semibold
-        static let caption2Semibold = Font.system(size: 11, weight: .semibold)
+        static let caption2Semibold = manrope(11, weight: .semibold)
 
-        // Progress ring percentage — 32px w800
-        static let progressLarge = Font.system(size: 32, weight: .heavy)
+        // Progress ring percentage — 32px ExtraBold
+        static let progressLarge = manrope(32, weight: .heavy)
 
         // Stat value (Profile) — 32px Bold
-        static let statValue = Font.system(size: 32, weight: .bold)
+        static let statValue = manrope(32, weight: .bold)
 
         // Card face text (Study flip card) — 28px Semibold
-        static let cardFace = Font.system(size: 28, weight: .semibold)
+        static let cardFace = manrope(28, weight: .semibold)
 
         // Question title (Quiz/Write modes) — 24px Bold
-        static let questionTitle = Font.system(size: 24, weight: .bold)
+        static let questionTitle = manrope(24, weight: .bold)
 
         // Welcome logo text — 42px Bold
-        static let logoTitle = Font.system(size: 42, weight: .bold)
+        static let logoTitle = manrope(42, weight: .bold)
 
-        // Icon sizes (for SF Symbol sizing, not text typography)
+        // Monospace — IBM Plex Mono
+        static let monoBody = mono(15)
+        static let monoCaption = mono(12)
+        static let monoSmall = mono(11)
+
+        // Label — small caps / all-caps labels
+        static let overline = manrope(11, weight: .semibold)
+
+        // Icon sizes (for SF Symbol sizing, not text typography — keep system font)
         enum IconSize {
             static let xs = Font.system(size: 12, weight: .bold)
             static let sm = Font.system(size: 16, weight: .semibold)
@@ -147,6 +194,8 @@ enum NP {
         static let lg: CGFloat = 20
         /// Extra large (sheets)
         static let xl: CGFloat = 24
+        /// Extra extra large (bottom sheet top corners)
+        static let xxl: CGFloat = 32
         /// Pill / capsule
         static let pill: CGFloat = 100
     }
@@ -158,6 +207,18 @@ enum NP {
         static let cardRadius: CGFloat = 16
         static let cardX: CGFloat = 0
         static let cardY: CGFloat = 4
+
+        /// Subtle shadow for search bars, small elements
+        static let subtleRadius: CGFloat = 4
+        static let subtleY: CGFloat = 2
+    }
+
+    // MARK: - Standard Sizes
+
+    enum Size {
+        static let buttonHeight: CGFloat = 56
+        static let fabSize: CGFloat = 56
+        static let avatarSize: CGFloat = 56
     }
 }
 
@@ -212,6 +273,26 @@ extension View {
     /// White card with shadow — primary surface component
     func npCard(radius: CGFloat = NP.Radius.lg) -> some View {
         modifier(NPCard(radius: radius))
+    }
+
+    /// Standard card shadow
+    func npCardShadow() -> some View {
+        self.shadow(
+            color: NP.Shadow.cardColor,
+            radius: NP.Shadow.cardRadius,
+            x: NP.Shadow.cardX,
+            y: NP.Shadow.cardY
+        )
+    }
+
+    /// Subtle shadow for search bars, small elements
+    func npSubtleShadow() -> some View {
+        self.shadow(
+            color: NP.Shadow.cardColor,
+            radius: NP.Shadow.subtleRadius,
+            x: NP.Shadow.cardX,
+            y: NP.Shadow.subtleY
+        )
     }
 
     /// Purple CTA button style

@@ -21,7 +21,7 @@ class FSRSService {
     private let fsrs: FSRS
 
     init() {
-        self.fsrs = FSRS()
+        self.fsrs = FSRS(parameters: FSRSParameters())
     }
 
     func processReview(card: Flashcard, rating: AppRating, now: Date = Date()) -> FSRSData {

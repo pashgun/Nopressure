@@ -8,27 +8,41 @@ struct HomeView: View {
     @Environment(\.analyticsService) private var analytics
     @Environment(\.modelContext) private var modelContext
 
+    @State private var selectedStudyDeck: Deck?
+    @State private var navigationPath = NavigationPath()
+    @State private var deckToDelete: Deck?
+    @State private var showDeleteDeckConfirmation = false
+    @State private var deckToEdit: Deck?
+
     private var userName: String {
         users.first?.name ?? "Friend"
     }
 
-    /// Simulated daily progress (0.0–1.0). In production, calculate from today's reviews.
     private var dailyProgress: Double {
-        // TODO: Calculate from actual study sessions today
-        0.87
+        guard let deck = decks.first else { return 0 }
+        let totalCards = deck.cards.count
+        guard totalCards > 0 else { return 0 }
+        let reviewedToday = deck.cards.filter { card in
+            guard let lastReview = card.fsrsData?.lastReview else { return false }
+            return Calendar.current.isDateInToday(lastReview)
+        }.count
+        return Swift.min(Double(reviewedToday) / Double(totalCards), 1.0)
     }
 
     private var cardsLeft: Int {
-        // TODO: Calculate from due cards
-        219
+        guard let deck = decks.first else { return 0 }
+        return deck.cards.filter { card in
+            guard let nextReview = card.fsrsData?.nextReview else { return true }
+            return nextReview <= Date()
+        }.count
     }
 
     private var currentDeckName: String {
-        decks.first?.name ?? "Essential Japanese"
+        decks.first?.name ?? "No Decks"
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             ZStack {
                 MeshBackground()
 
@@ -36,7 +50,7 @@ struct HomeView: View {
                     VStack(spacing: NP.Spacing.xxl) {
                         // MARK: - Header: Date + Greeting
                         headerSection
-                            .padding(.top, 12)
+                            .padding(.top, NP.Spacing.md)
 
                         // MARK: - Hero Card (illustration + progress + CTA)
                         heroCard
@@ -49,25 +63,62 @@ struct HomeView: View {
                 }
             }
             .navigationBarHidden(true)
+            .navigationDestination(for: Deck.self) { deck in
+                DeckDetailView(deck: deck)
+            }
+            .fullScreenCover(item: $selectedStudyDeck) { deck in
+                StudySessionView(deck: deck)
+            }
             .onAppear {
                 analytics.trackScreen("Home", context: modelContext)
             }
+            .sheet(item: $deckToEdit) { deck in
+                DeckSettingsView(deck: deck)
+            }
+            .alert("Delete Deck", isPresented: $showDeleteDeckConfirmation) {
+                Button("Cancel", role: .cancel) {
+                    deckToDelete = nil
+                }
+                Button("Delete", role: .destructive) {
+                    if let deck = deckToDelete {
+                        modelContext.delete(deck)
+                        try? modelContext.save()
+                        deckToDelete = nil
+                    }
+                }
+            } message: {
+                if let deck = deckToDelete {
+                    Text("Are you sure you want to delete \"\(deck.name)\"? This will also delete all \(deck.cards.count) cards. This action cannot be undone.")
+                }
+            }
         }
+    }
+
+    private func confirmDeleteDeck(_ deck: Deck) {
+        deckToDelete = deck
+        showDeleteDeckConfirmation = true
     }
 
     // MARK: - Header
 
     private var headerSection: some View {
-        VStack(alignment: .leading, spacing: NP.Spacing.xs) {
-            Text(formattedDate())
-                .font(NP.Typography.subheadline)
-                .foregroundColor(NP.Colors.textSecondary)
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: NP.Spacing.xs) {
+                Text(formattedDate().uppercased())
+                    .font(NP.Typography.overline)
+                    .foregroundColor(NP.Colors.textSecondary)
+                    .tracking(1.2)
 
-            Text(greetingText())
-                .font(NP.Typography.largeTitle)
-                .foregroundColor(NP.Colors.textBlack)
+                Text("Hi, \(userName)")
+                    .font(NP.Typography.largeTitle)
+                    .foregroundColor(NP.Colors.textBlack)
+            }
+
+            Spacer()
+
+            // Progress ring — in header, top right (per Figma)
+            progressRing
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, NP.Spacing.xxl)
     }
 
@@ -75,7 +126,7 @@ struct HomeView: View {
 
     private var heroCard: some View {
         VStack(spacing: 0) {
-            // Top area: illustration placeholder + progress ring overlay
+            // Top area: illustration
             ZStack {
                 // Orange blob background area
                 RoundedRectangle(cornerRadius: NP.Radius.lg, style: .continuous)
@@ -88,17 +139,6 @@ struct HomeView: View {
                     .scaledToFill()
                     .frame(maxWidth: .infinity, maxHeight: 200)
                     .clipped()
-
-                // Progress ring — top right
-                VStack {
-                    HStack {
-                        Spacer()
-                        progressRing
-                            .padding(.top, 16)
-                            .padding(.trailing, 16)
-                    }
-                    Spacer()
-                }
             }
             .frame(height: 200)
             .clipShape(
@@ -126,16 +166,13 @@ struct HomeView: View {
 
                 // Continue Learning button
                 Button {
-                    // Navigate to study session
+                    selectedStudyDeck = decks.first
                 } label: {
                     Text("Continue Learning")
-                        .font(NP.Typography.bodySemibold)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 52)
-                        .background(NP.Colors.primary)
-                        .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
+                        .npPrimaryButton()
                 }
+                .disabled(decks.isEmpty)
+                .opacity(decks.isEmpty ? 0.5 : 1.0)
                 .padding(.top, NP.Spacing.sm)
             }
             .padding(.horizontal, NP.Spacing.lg)
@@ -143,12 +180,7 @@ struct HomeView: View {
         }
         .background(NP.Colors.surface)
         .clipShape(RoundedRectangle(cornerRadius: NP.Radius.lg, style: .continuous))
-        .shadow(
-            color: NP.Shadow.cardColor,
-            radius: NP.Shadow.cardRadius,
-            x: NP.Shadow.cardX,
-            y: NP.Shadow.cardY
-        )
+        .npCardShadow()
         .padding(.horizontal, NP.Spacing.xxl)
     }
 
@@ -173,7 +205,7 @@ struct HomeView: View {
                 .font(NP.Typography.subheadlineSemibold)
                 .foregroundColor(NP.Colors.textBlack)
         }
-        .padding(6)
+        .padding(NP.Spacing.sm)
         .background(Color.white.opacity(0.6))
         .clipShape(Circle())
     }
@@ -207,12 +239,36 @@ struct HomeView: View {
                         .multilineTextAlignment(.center)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 40)
+                .padding(.vertical, NP.Spacing.xxxl)
             } else {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: NP.Spacing.md) {
                         ForEach(decks.prefix(5)) { deck in
-                            DeckCardView(deck: deck)
+                            Button {
+                                navigationPath.append(deck)
+                            } label: {
+                                DeckCardView(deck: deck)
+                            }
+                            .buttonStyle(.plain)
+                            .contextMenu {
+                                Button {
+                                    navigationPath.append(deck)
+                                } label: {
+                                    Label("Open", systemImage: "folder")
+                                }
+
+                                Button {
+                                    deckToEdit = deck
+                                } label: {
+                                    Label("Edit Deck", systemImage: "pencil")
+                                }
+
+                                Button(role: .destructive) {
+                                    confirmDeleteDeck(deck)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
                         }
                     }
                     .padding(.horizontal, NP.Spacing.xxl)
@@ -222,18 +278,6 @@ struct HomeView: View {
     }
 
     // MARK: - Helpers
-
-    private func greetingText() -> String {
-        let hour = Calendar.current.component(.hour, from: Date())
-        switch hour {
-        case 0..<12:
-            return "Good morning, \(userName)"
-        case 12..<17:
-            return "Good afternoon, \(userName)"
-        default:
-            return "Good evening, \(userName)"
-        }
-    }
 
     private func formattedDate() -> String {
         let formatter = DateFormatter()
@@ -253,8 +297,8 @@ struct TagPill: View {
         Text(text)
             .font(NP.Typography.caption2Semibold)
             .foregroundColor(textColor)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 4)
+            .padding(.horizontal, NP.Spacing.md)
+            .padding(.vertical, NP.Spacing.xs)
             .background(color)
             .clipShape(Capsule())
     }
@@ -305,11 +349,6 @@ struct DeckCardView: View {
         .frame(width: 160, height: 140)
         .background(NP.Colors.surface)
         .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
-        .shadow(
-            color: NP.Shadow.cardColor,
-            radius: NP.Shadow.cardRadius,
-            x: NP.Shadow.cardX,
-            y: NP.Shadow.cardY
-        )
+        .npCardShadow()
     }
 }

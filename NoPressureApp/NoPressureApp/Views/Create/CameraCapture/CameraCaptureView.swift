@@ -6,6 +6,9 @@ struct CameraCaptureView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
+    /// Called with the created deck after save; parent can then navigate to DeckDetail.
+    var onDeckCreated: ((Deck) -> Void)?
+
     @State private var capturedImage: UIImage?
     @State private var showingCamera = false
     @State private var isProcessing = false
@@ -123,7 +126,7 @@ struct CameraCaptureView: View {
                         if let error = errorMessage {
                             Text(error)
                                 .font(NP.Typography.caption1)
-                                .foregroundColor(Color(hex: "#FF453A"))
+                                .foregroundColor(NP.Colors.error)
                                 .padding(.horizontal, NP.Spacing.xxl)
                                 .multilineTextAlignment(.center)
                         }
@@ -175,7 +178,7 @@ struct CameraCaptureView: View {
             }
             .navigationTitle("Camera Capture")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
+            .toolbar(content: {
                 ToolbarItem(placement: .navigationBarLeading) {
                     if !showingReview && !isProcessing {
                         Button("Cancel") {
@@ -184,7 +187,7 @@ struct CameraCaptureView: View {
                         .foregroundColor(NP.Colors.primary)
                     }
                 }
-            }
+            })
             .sheet(isPresented: $showingCamera) {
                 ImagePicker(image: $capturedImage)
             }
@@ -246,6 +249,7 @@ struct CameraCaptureView: View {
 
         do {
             try modelContext.save()
+            onDeckCreated?(deck)
             dismiss()
         } catch {
             showSaveError = true
@@ -294,5 +298,5 @@ struct ImagePicker: UIViewControllerRepresentable {
 }
 
 #Preview {
-    CameraCaptureView()
+    CameraCaptureView(onDeckCreated: nil)
 }

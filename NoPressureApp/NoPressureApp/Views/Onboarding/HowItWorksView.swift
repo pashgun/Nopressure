@@ -2,97 +2,212 @@ import SwiftUI
 
 struct FeaturePage: Identifiable {
     let id = UUID()
-    let icon: String
-    let title: String
-    let description: String
+    let icon: String          // SF Symbol name
+    let subtitle: String      // Small caps label
+    let title: String         // Large title
+    let description: String   // Description text
+    let blobAlignment: Alignment // Where the orange blob appears
 }
 
+/// Onboarding feature showcase — matches Figma (node 1-1209 / 1-1299)
+/// White background, illustration area at top with orange blob accents,
+/// white card at bottom with subtitle, title, and CTA button
 struct HowItWorksView: View {
     @Binding var currentPage: Int
     let onComplete: () -> Void
 
     let features = [
         FeaturePage(
-            icon: "camera.fill",
-            title: "Snap & Learn",
-            description: "AI creates flashcards from photos, PDFs, or text"
+            icon: "camera.viewfinder",
+            subtitle: "SNAP & LEARN",
+            title: "Turn anything into\nflashcards",
+            description: "AI creates flashcards from photos, PDFs, or text in seconds",
+            blobAlignment: .topLeading
         ),
         FeaturePage(
-            icon: "heart.fill",
-            title: "No Guilt, No Burnout",
-            description: "Miss a day? No problem. No streaks, no pressure."
+            icon: "heart.circle",
+            subtitle: "NO GUILT",
+            title: "Miss a day?\nNo problem.",
+            description: "No streaks, no pressure. Learn at your own pace",
+            blobAlignment: .bottomTrailing
         ),
         FeaturePage(
             icon: "brain.head.profile",
-            title: "Smart Repetition",
-            description: "FSRS algorithm shows cards at optimal time"
+            subtitle: "SMART REPETITION",
+            title: "Remember\neverything",
+            description: "FSRS algorithm shows cards at the optimal time for your memory",
+            blobAlignment: .topTrailing
         )
     ]
 
     var body: some View {
         ZStack {
-            MeshBackground()
+            // White background
+            Color.white
+                .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                Spacer()
+                // Top: illustration area — fills remaining space (Figma: H 678 Fill)
+                ZStack {
+                    // Orange blob decorations (like Figma corners)
+                    orangeBlobDecoration(alignment: features[currentPage].blobAlignment)
 
-                // Feature Content
-                TabView(selection: $currentPage) {
-                    ForEach(Array(features.enumerated()), id: \.element.id) { index, feature in
-                        VStack(spacing: NP.Spacing.xxxl) {
-                            // Icon in a circle
-                            ZStack {
-                                Circle()
-                                    .fill(NP.Colors.lightPurple)
-                                    .frame(width: 120, height: 120)
-
-                                Image(systemName: feature.icon)
-                                    .font(NP.Typography.IconSize.hero)
-                                    .foregroundColor(NP.Colors.primary)
-                            }
-
-                            VStack(spacing: NP.Spacing.lg) {
-                                Text(feature.title)
-                                    .font(NP.Typography.title1)
-                                    .foregroundColor(NP.Colors.textBlack)
-                                    .multilineTextAlignment(.center)
-
-                                Text(feature.description)
-                                    .font(NP.Typography.body)
-                                    .foregroundColor(NP.Colors.textSecondary)
-                                    .multilineTextAlignment(.center)
-                                    .padding(.horizontal, 48)
-                            }
-                        }
-                        .tag(index)
-                    }
+                    // Illustration — SF Symbol as large icon with purple styling
+                    illustrationArea(for: features[currentPage])
                 }
-                .tabViewStyle(.page(indexDisplayMode: .always))
-                .frame(height: 400)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                Spacer()
+                // Bottom: white card — hugs content (Figma: H Hug, padding L32 T0 R32 B32, gap 8)
+                VStack(spacing: NP.Spacing.sm) {
+                    // Page dots
+                    HStack(spacing: NP.Spacing.sm) {
+                        ForEach(0..<features.count, id: \.self) { index in
+                            Circle()
+                                .fill(index == currentPage ? NP.Colors.primary : NP.Colors.lightPurple)
+                                .frame(width: index == currentPage ? 10 : 8,
+                                       height: index == currentPage ? 10 : 8)
+                        }
+                    }
+                    .padding(.top, NP.Spacing.xxl)
+                    .padding(.bottom, NP.Spacing.xs)
 
-                // Continue Button
-                Button {
+                    // Subtitle — small caps tracking
+                    Text(features[currentPage].subtitle)
+                        .font(NP.Typography.overline)
+                        .foregroundColor(NP.Colors.textSecondary)
+                        .tracking(2)
+
+                    // Title
+                    Text(features[currentPage].title)
+                        .font(NP.Typography.title1)
+                        .foregroundColor(NP.Colors.textBlack)
+                        .multilineTextAlignment(.center)
+
+                    // Description
+                    Text(features[currentPage].description)
+                        .font(NP.Typography.body)
+                        .foregroundColor(NP.Colors.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, NP.Spacing.xxxl)
+
+                    // CTA Button — purple filled
+                    Button {
+                        if currentPage < features.count - 1 {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                currentPage += 1
+                            }
+                        } else {
+                            onComplete()
+                        }
+                    } label: {
+                        Text(currentPage < features.count - 1 ? "Continue" : "Get Started")
+                            .npPrimaryButton()
+                    }
+                    .padding(.horizontal, NP.Spacing.xxl)
+                    .padding(.top, NP.Spacing.sm)
+
+                    // Skip
                     if currentPage < features.count - 1 {
-                        withAnimation {
-                            currentPage += 1
+                        Button {
+                            onComplete()
+                        } label: {
+                            Text("Skip")
+                                .font(NP.Typography.subheadline)
+                                .foregroundColor(NP.Colors.textSecondary)
                         }
-                    } else {
-                        onComplete()
                     }
-                } label: {
-                    Text(currentPage < features.count - 1 ? "Continue" : "Get Started")
-                        .font(NP.Typography.bodySemibold)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(NP.Colors.primary)
-                        .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
                 }
-                .padding(.horizontal, 32)
+                .padding(.bottom, NP.Spacing.xxxl)
+                .frame(maxWidth: .infinity)
+                .background(
+                    UnevenRoundedRectangle(
+                        topLeadingRadius: NP.Radius.xxl,
+                        bottomLeadingRadius: 0,
+                        bottomTrailingRadius: 0,
+                        topTrailingRadius: NP.Radius.xxl
+                    )
+                    .fill(Color.white)
+                    .shadow(color: NP.Shadow.cardColor, radius: NP.Shadow.cardRadius, x: 0, y: -6)
+                )
+            }
+        }
+        .gesture(
+            DragGesture()
+                .onEnded { value in
+                    if value.translation.width < -50, currentPage < features.count - 1 {
+                        withAnimation(.easeInOut(duration: 0.3)) { currentPage += 1 }
+                    } else if value.translation.width > 50, currentPage > 0 {
+                        withAnimation(.easeInOut(duration: 0.3)) { currentPage -= 1 }
+                    }
+                }
+        )
+        .animation(.easeInOut(duration: 0.35), value: currentPage)
+    }
 
-                Spacer().frame(height: 60)
+    // MARK: - Orange Blob Decoration (corner blobs like Figma)
+
+    @ViewBuilder
+    private func orangeBlobDecoration(alignment: Alignment) -> some View {
+        GeometryReader { geo in
+            ZStack {
+                // Primary blob
+                OrangeBlob(phase: 0.5)
+                    .fill(
+                        LinearGradient(
+                            colors: [NP.Colors.accent.opacity(0.7), NP.Colors.accent.opacity(0.4)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 180, height: 200)
+                    .position(blobPosition(for: alignment, in: geo.size, isPrimary: true))
+
+                // Secondary smaller blob
+                OrangeBlob(phase: 0.2)
+                    .fill(NP.Colors.accent.opacity(0.25))
+                    .frame(width: 120, height: 140)
+                    .position(blobPosition(for: alignment, in: geo.size, isPrimary: false))
+            }
+        }
+    }
+
+    private func blobPosition(for alignment: Alignment, in size: CGSize, isPrimary: Bool) -> CGPoint {
+        switch alignment {
+        case .topLeading:
+            return isPrimary
+                ? CGPoint(x: -20, y: 30)
+                : CGPoint(x: 60, y: 130)
+        case .topTrailing:
+            return isPrimary
+                ? CGPoint(x: size.width + 20, y: 40)
+                : CGPoint(x: size.width - 50, y: 140)
+        case .bottomTrailing:
+            return isPrimary
+                ? CGPoint(x: size.width + 10, y: size.height - 20)
+                : CGPoint(x: size.width - 60, y: size.height - 80)
+        default:
+            return isPrimary
+                ? CGPoint(x: -10, y: size.height - 30)
+                : CGPoint(x: 70, y: size.height - 100)
+        }
+    }
+
+    // MARK: - Illustration Area
+
+    @ViewBuilder
+    private func illustrationArea(for page: FeaturePage) -> some View {
+        VStack(spacing: NP.Spacing.lg) {
+            // Large icon as illustration placeholder
+            // (Replace with actual doodle art assets when available)
+            ZStack {
+                // Purple circle background
+                Circle()
+                    .fill(NP.Colors.lightPurple.opacity(0.3))
+                    .frame(width: 180, height: 180)
+
+                Image(systemName: page.icon)
+                    .font(NP.Typography.IconSize.splash)
+                    .foregroundColor(NP.Colors.primary)
             }
         }
     }

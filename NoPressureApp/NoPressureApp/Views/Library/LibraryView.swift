@@ -8,6 +8,7 @@ struct LibraryView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var searchText = ""
     @State private var selectedFilter: FilterOption = .all
+    @State private var showingBrowseDecks = false
 
     enum FilterOption: String, CaseIterable {
         case all = "All"
@@ -23,12 +24,12 @@ struct LibraryView: View {
         }
 
         switch selectedFilter {
+        case .all:
+            result = result.sorted { $0.cards.count > $1.cards.count }
         case .recent:
             result = result.sorted { ($0.lastStudied ?? .distantPast) > ($1.lastStudied ?? .distantPast) }
         case .favorites:
-            break
-        case .all:
-            break
+            result = result.filter { $0.isFavorite }
         }
 
         return result
@@ -97,11 +98,13 @@ struct LibraryView: View {
                                 .frame(width: 48, height: 48)
                                 .foregroundColor(NP.Colors.primary)
 
-                            Text("No decks yet")
+                            Text(selectedFilter == .favorites ? "No favorite decks" : "No decks yet")
                                 .font(NP.Typography.title2)
                                 .foregroundColor(NP.Colors.textPrimary)
 
-                            Text("Create your first deck to start learning")
+                            Text(selectedFilter == .favorites
+                                 ? "Tap the heart icon on a deck to add it to favorites"
+                                 : "Create your first deck to start learning")
                                 .font(NP.Typography.subheadline)
                                 .foregroundColor(NP.Colors.textSecondary)
                                 .multilineTextAlignment(.center)
@@ -127,6 +130,19 @@ struct LibraryView: View {
             }
             .navigationTitle("Library")
             .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showingBrowseDecks = true
+                    } label: {
+                        Image(systemName: "rectangle.stack.badge.plus")
+                            .foregroundColor(NP.Colors.primary)
+                    }
+                }
+            }
+            .sheet(isPresented: $showingBrowseDecks) {
+                BrowseDecksView()
+            }
             .onAppear {
                 analytics.trackScreen("Library", context: modelContext)
             }
@@ -136,23 +152,28 @@ struct LibraryView: View {
 
 struct DeckGridCard: View {
     let deck: Deck
+    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         VStack(alignment: .leading, spacing: NP.Spacing.md) {
             HStack {
                 Image(systemName: deck.icon)
-                    .foregroundColor(NP.Colors.primary)
+                    .foregroundColor(Color(hex: deck.colorHex))
                     .font(NP.Typography.IconSize.lg)
 
                 Spacer()
 
-                Text("\(deck.cards.count)")
-                    .font(NP.Typography.footnoteSemibold)
-                    .foregroundColor(NP.Colors.textSecondary)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(NP.Colors.lightPurple)
-                    .clipShape(Capsule())
+                // Favorite button
+                Button {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                        deck.isFavorite.toggle()
+                        try? modelContext.save()
+                    }
+                } label: {
+                    Image(systemName: deck.isFavorite ? "heart.fill" : "heart")
+                        .font(NP.Typography.IconSize.sm)
+                        .foregroundColor(deck.isFavorite ? NP.Colors.error : NP.Colors.textSecondary)
+                }
             }
 
             Text(deck.name)
@@ -160,14 +181,30 @@ struct DeckGridCard: View {
                 .foregroundColor(NP.Colors.textPrimary)
                 .lineLimit(2)
 
-            if let lastStudied = deck.lastStudied {
-                Text("Last studied \(timeAgo(lastStudied))")
+            // Description
+            if !deck.deckDescription.isEmpty {
+                Text(deck.deckDescription)
                     .font(NP.Typography.caption1)
                     .foregroundColor(NP.Colors.textSecondary)
-            } else {
-                Text("Not studied yet")
-                    .font(NP.Typography.caption1)
+                    .lineLimit(2)
+            }
+
+            HStack {
+                Text("\(deck.cards.count) cards")
+                    .font(NP.Typography.caption2Semibold)
                     .foregroundColor(NP.Colors.textSecondary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(NP.Colors.lightPurple)
+                    .clipShape(Capsule())
+
+                Spacer()
+
+                if let lastStudied = deck.lastStudied {
+                    Text(timeAgo(lastStudied))
+                        .font(NP.Typography.caption2)
+                        .foregroundColor(NP.Colors.textSecondary)
+                }
             }
         }
         .padding(NP.Spacing.lg)

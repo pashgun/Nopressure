@@ -3,7 +3,7 @@ import SwiftData
 import FabrikaAnalytics
 
 /// Profile screen — matches Figma "Profile Placeholder" (node 2:788)
-/// Shows statistics cards + finished decks list
+/// Shows date, daily goal, statistics cards, weekly chart, finished decks
 struct ProfileView: View {
     @Query private var decks: [Deck]
     @Query private var users: [User]
@@ -12,6 +12,10 @@ struct ProfileView: View {
 
     private var userName: String {
         users.first?.name ?? "Friend"
+    }
+
+    private var dailyGoalCards: Int {
+        users.first?.dailyMinutes ?? 15
     }
 
     @State private var showingSettings = false
@@ -28,12 +32,21 @@ struct ProfileView: View {
 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: NP.Spacing.xxl) {
+                        // Date
+                        dateSection
+                            .padding(.top, NP.Spacing.sm)
+
                         // Header
                         profileHeader
-                            .padding(.top, NP.Spacing.md)
+
+                        // Daily Goal
+                        dailyGoalSection
 
                         // Statistics Cards
                         statisticsSection
+
+                        // Weekly Activity Chart
+                        weeklyChartSection
 
                         // Finished Decks
                         finishedDecksSection
@@ -47,6 +60,19 @@ struct ProfileView: View {
                 analytics.trackScreen("Profile", context: modelContext)
             }
         }
+    }
+
+    // MARK: - Date Section
+
+    private var dateSection: some View {
+        HStack {
+            Text(Date(), format: .dateTime.weekday(.wide).month(.wide).day())
+                .font(NP.Typography.subheadline)
+                .foregroundColor(NP.Colors.textSecondary)
+
+            Spacer()
+        }
+        .padding(.horizontal, NP.Spacing.xxl)
     }
 
     // MARK: - Header
@@ -90,6 +116,76 @@ struct ProfileView: View {
             AppSettingsView()
         }
     }
+
+    // MARK: - Daily Goal
+
+    private var cardsStudiedToday: Int {
+        let startOfDay = Calendar.current.startOfDay(for: Date())
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
+        return decks.flatMap { $0.cards }.filter { card in
+            guard let lastReview = card.fsrsData?.lastReview else { return false }
+            return lastReview >= startOfDay && lastReview < endOfDay
+        }.count
+    }
+
+    private var dailyGoalProgress: Double {
+        guard dailyGoalCards > 0 else { return 0 }
+        return min(Double(cardsStudiedToday) / Double(dailyGoalCards), 1.0)
+    }
+
+    private var dailyGoalSection: some View {
+        VStack(alignment: .leading, spacing: NP.Spacing.lg) {
+            Text("Daily Goal")
+                .font(NP.Typography.title2)
+                .foregroundColor(NP.Colors.textBlack)
+
+            HStack(spacing: NP.Spacing.xxl) {
+                // Progress ring
+                ZStack {
+                    Circle()
+                        .stroke(NP.Colors.lightPurple, lineWidth: 8)
+                        .frame(width: 80, height: 80)
+
+                    Circle()
+                        .trim(from: 0, to: dailyGoalProgress)
+                        .stroke(
+                            dailyGoalProgress >= 1.0 ? NP.Colors.success : NP.Colors.primary,
+                            style: StrokeStyle(lineWidth: 8, lineCap: .round)
+                        )
+                        .frame(width: 80, height: 80)
+                        .rotationEffect(.degrees(-90))
+                        .animation(.spring(response: 0.6, dampingFraction: 0.8), value: dailyGoalProgress)
+
+                    VStack(spacing: 2) {
+                        Text("\(Int(dailyGoalProgress * 100))%")
+                            .font(NP.Typography.bodySemibold)
+                            .foregroundColor(NP.Colors.textBlack)
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: NP.Spacing.sm) {
+                    Text("\(cardsStudiedToday) / \(dailyGoalCards) cards")
+                        .font(NP.Typography.bodySemibold)
+                        .foregroundColor(NP.Colors.textBlack)
+
+                    Text(cardsStudiedToday >= dailyGoalCards
+                         ? "Goal completed! 🎉"
+                         : "\(dailyGoalCards - cardsStudiedToday) cards to go")
+                        .font(NP.Typography.subheadline)
+                        .foregroundColor(cardsStudiedToday >= dailyGoalCards ? NP.Colors.success : NP.Colors.textSecondary)
+                }
+
+                Spacer()
+            }
+            .padding(NP.Spacing.xl)
+            .background(NP.Colors.surface)
+            .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
+            .npCardShadow()
+        }
+        .padding(.horizontal, NP.Spacing.xxl)
+    }
+
+    // MARK: - Streak & Cards Learned
 
     private var currentStreak: Int {
         var streak = 0
@@ -169,6 +265,54 @@ struct ProfileView: View {
         }
     }
 
+    // MARK: - Weekly Activity Chart
+
+    private var weeklyChartSection: some View {
+        VStack(alignment: .leading, spacing: NP.Spacing.lg) {
+            Text("Last 7 Days")
+                .font(NP.Typography.title2)
+                .foregroundColor(NP.Colors.textBlack)
+
+            VStack(spacing: NP.Spacing.md) {
+                HStack(alignment: .bottom, spacing: NP.Spacing.sm) {
+                    ForEach(0..<7, id: \.self) { dayOffset in
+                        let date = Calendar.current.date(byAdding: .day, value: -(6 - dayOffset), to: Date())!
+                        let count = cardsStudiedOn(date)
+                        let maxCount = maxCardsInWeek
+
+                        VStack(spacing: NP.Spacing.xs) {
+                            // Count label
+                            if count > 0 {
+                                Text("\(count)")
+                                    .font(NP.Typography.caption2)
+                                    .foregroundColor(NP.Colors.textSecondary)
+                            }
+
+                            // Bar
+                            RoundedRectangle(cornerRadius: NP.Radius.sm)
+                                .fill(barColor(count: count, dayOffset: dayOffset))
+                                .frame(height: barHeight(count: count, maxCount: maxCount))
+                                .frame(maxWidth: .infinity)
+
+                            // Day label
+                            Text(dayLabel(date))
+                                .font(NP.Typography.caption2)
+                                .foregroundColor(isToday(date) ? NP.Colors.primary : NP.Colors.textSecondary)
+                                .fontWeight(isToday(date) ? .bold : .regular)
+                        }
+                    }
+                }
+                .frame(height: 120)
+                .padding(.top, NP.Spacing.sm)
+            }
+            .padding(NP.Spacing.lg)
+            .background(NP.Colors.surface)
+            .clipShape(RoundedRectangle(cornerRadius: NP.Radius.md, style: .continuous))
+            .npCardShadow()
+        }
+        .padding(.horizontal, NP.Spacing.xxl)
+    }
+
     // MARK: - Finished Decks
 
     private var finishedDecksSection: some View {
@@ -202,6 +346,51 @@ struct ProfileView: View {
                 .padding(.horizontal, NP.Spacing.xxl)
             }
         }
+    }
+
+    // MARK: - Chart Helpers
+
+    private func cardsStudiedOn(_ date: Date) -> Int {
+        let start = Calendar.current.startOfDay(for: date)
+        let end = Calendar.current.date(byAdding: .day, value: 1, to: start)!
+        return decks.flatMap { $0.cards }.filter { card in
+            guard let lastReview = card.fsrsData?.lastReview else { return false }
+            return lastReview >= start && lastReview < end
+        }.count
+    }
+
+    private var maxCardsInWeek: Int {
+        (0..<7).map { dayOffset in
+            let date = Calendar.current.date(byAdding: .day, value: -(6 - dayOffset), to: Date())!
+            return cardsStudiedOn(date)
+        }.max() ?? 1
+    }
+
+    private func barHeight(count: Int, maxCount: Int) -> CGFloat {
+        let minHeight: CGFloat = 8
+        let maxHeight: CGFloat = 80
+        guard maxCount > 0 else { return minHeight }
+        if count == 0 { return minHeight }
+        return minHeight + (maxHeight - minHeight) * CGFloat(count) / CGFloat(maxCount)
+    }
+
+    private func barColor(count: Int, dayOffset: Int) -> Color {
+        if count == 0 { return NP.Colors.lightPurple.opacity(0.4) }
+        let isLast = dayOffset == 6
+        if isLast { return NP.Colors.primary }
+        if count < 5 { return NP.Colors.primary.opacity(0.5) }
+        if count < 15 { return NP.Colors.primary.opacity(0.7) }
+        return NP.Colors.primary.opacity(0.85)
+    }
+
+    private func dayLabel(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEE"
+        return String(formatter.string(from: date).prefix(2))
+    }
+
+    private func isToday(_ date: Date) -> Bool {
+        Calendar.current.isDateInToday(date)
     }
 }
 

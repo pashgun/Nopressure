@@ -10,6 +10,7 @@ final class Deck: Identifiable {
     var cards: [Flashcard]
     var colorHex: String
     var icon: String
+    var isFavorite: Bool
     var createdAt: Date
     var lastStudied: Date?
 
@@ -20,6 +21,7 @@ final class Deck: Identifiable {
         cards: [Flashcard] = [],
         colorHex: String = "#5533FF",
         icon: String = "folder.fill",
+        isFavorite: Bool = false,
         createdAt: Date = Date(),
         lastStudied: Date? = nil
     ) {
@@ -29,6 +31,7 @@ final class Deck: Identifiable {
         self.cards = cards
         self.colorHex = colorHex
         self.icon = icon
+        self.isFavorite = isFavorite
         self.createdAt = createdAt
         self.lastStudied = lastStudied
     }

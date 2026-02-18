@@ -163,34 +163,55 @@ struct CardListView: View {
                     }
                     Spacer()
                 } else {
-                    ScrollView {
-                        LazyVStack(spacing: NP.Spacing.md) {
-                            ForEach(filteredCards) { card in
+                    List {
+                        ForEach(filteredCards) { card in
+                            Button {
+                                selectedCard = card
+                            } label: {
+                                CardListRow(card: card)
+                            }
+                            .buttonStyle(.plain)
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(
+                                top: NP.Spacing.xs,
+                                leading: NP.Spacing.xxl,
+                                bottom: NP.Spacing.xs,
+                                trailing: NP.Spacing.xxl
+                            ))
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    deleteCard(card)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                            .swipeActions(edge: .leading, allowsFullSwipe: true) {
                                 Button {
                                     selectedCard = card
                                 } label: {
-                                    CardListRow(card: card)
+                                    Label("Edit", systemImage: "pencil")
                                 }
-                                .buttonStyle(.plain)
-                                .contextMenu {
-                                    Button {
-                                        selectedCard = card
-                                    } label: {
-                                        Label("Edit", systemImage: "pencil")
-                                    }
+                                .tint(NP.Colors.primary)
+                            }
+                            .contextMenu {
+                                Button {
+                                    selectedCard = card
+                                } label: {
+                                    Label("Edit", systemImage: "pencil")
+                                }
 
-                                    Button(role: .destructive) {
-                                        deleteCard(card)
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
-                                    }
+                                Button(role: .destructive) {
+                                    deleteCard(card)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
                                 }
                             }
                         }
-                        .padding(.horizontal, NP.Spacing.xxl)
-                        .padding(.top, NP.Spacing.md)
-                        .padding(.bottom, 80)
                     }
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                    .padding(.bottom, 80)
                 }
             }
         }

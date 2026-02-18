@@ -15,7 +15,7 @@ struct BrowseDecksView: View {
     private let bundledDecks = BundledDecksService.allDecks
 
     private var categories: [String] {
-        var cats = Set(bundledDecks.map { $0.category })
+        let cats = Set(bundledDecks.map { $0.category })
         return ["All"] + cats.sorted()
     }
 

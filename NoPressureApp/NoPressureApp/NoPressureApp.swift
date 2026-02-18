@@ -8,42 +8,64 @@ struct NoPressureApp: App {
     let analyticsService: AnalyticsService
 
     init() {
+        let schema = Schema([
+            User.self,
+            Deck.self,
+            Flashcard.self,
+            FSRSData.self,
+            AnalyticsEventRecord.self,
+            SessionRecord.self,
+            PrivacyConsent.self
+        ])
+
+        let modelConfiguration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: false
+        )
+
         do {
-            let schema = Schema([
-                User.self,
-                Deck.self,
-                Flashcard.self,
-                FSRSData.self,
-                AnalyticsEventRecord.self,
-                SessionRecord.self,
-                PrivacyConsent.self
-            ])
-
-            let modelConfiguration = ModelConfiguration(
-                schema: schema,
-                isStoredInMemoryOnly: false
-            )
-
             modelContainer = try ModelContainer(
                 for: schema,
                 configurations: [modelConfiguration]
             )
-
-            // Initialize analytics (MVP: local only, no cloud services)
-            let config = AnalyticsConfiguration(
-                enableAmplitude: false,
-                enableAppsFlyer: false,
-                enableCloudSync: false,
-                hasUserConsent: true  // Always track locally
-            )
-            analyticsService = AnalyticsService(configuration: config)
-
-            // Create sample data for development
-            #if DEBUG
-            createSampleData()
-            #endif
         } catch {
-            fatalError("Could not initialize ModelContainer: \(error)")
+            // Migration failed — delete old store and recreate (dev only)
+            print("⚠️ ModelContainer migration failed: \(error). Deleting old store...")
+            Self.deleteStoreFiles()
+            do {
+                modelContainer = try ModelContainer(
+                    for: schema,
+                    configurations: [modelConfiguration]
+                )
+            } catch {
+                fatalError("Could not initialize ModelContainer after reset: \(error)")
+            }
+        }
+
+        // Initialize analytics (MVP: local only, no cloud services)
+        let config = AnalyticsConfiguration(
+            enableAmplitude: false,
+            enableAppsFlyer: false,
+            enableCloudSync: false,
+            hasUserConsent: true  // Always track locally
+        )
+        analyticsService = AnalyticsService(configuration: config)
+
+        // Create sample data for development
+        #if DEBUG
+        createSampleData()
+        #endif
+    }
+
+    /// Delete SwiftData store files to recover from migration failures
+    private static func deleteStoreFiles() {
+        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        let storeURL = appSupport.appendingPathComponent("default.store")
+        let storeSHM = appSupport.appendingPathComponent("default.store-shm")
+        let storeWAL = appSupport.appendingPathComponent("default.store-wal")
+
+        for url in [storeURL, storeSHM, storeWAL] {
+            try? FileManager.default.removeItem(at: url)
         }
     }
 
